@@ -10,11 +10,17 @@ import type {
   SummarizationResult,
   EmbeddingOptions,
   EmbeddingResult,
+  ImageGenerationOptions,
+  ImageGenerationResult,
 } from "./types";
 
-export abstract class BaseAdapter<TModels extends readonly string[] = readonly string[]> implements AIAdapter {
+export abstract class BaseAdapter<
+  TModels extends readonly string[] = readonly string[],
+  TImageModels extends readonly string[] = readonly string[]
+> implements AIAdapter<TModels, TImageModels> {
   abstract name: string;
   abstract models: TModels;
+  imageModels?: TImageModels;
   protected config: AIAdapterConfig;
 
   constructor(config: AIAdapterConfig = {}) {
@@ -42,6 +48,11 @@ export abstract class BaseAdapter<TModels extends readonly string[] = readonly s
   abstract createEmbeddings(
     options: EmbeddingOptions
   ): Promise<EmbeddingResult>;
+
+  // Optional image generation
+  generateImage?(
+    options: ImageGenerationOptions
+  ): Promise<ImageGenerationResult>;
 
   protected generateId(): string {
     return `${this.name}-${Date.now()}-${Math.random()

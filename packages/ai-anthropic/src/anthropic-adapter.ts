@@ -30,11 +30,17 @@ const ANTHROPIC_MODELS = [
   "claude-instant-1.2",
 ] as const;
 
+const ANTHROPIC_IMAGE_MODELS = [] as const;
+
 export type AnthropicModel = (typeof ANTHROPIC_MODELS)[number];
 
-export class AnthropicAdapter extends BaseAdapter<typeof ANTHROPIC_MODELS> {
+export class AnthropicAdapter extends BaseAdapter<
+  typeof ANTHROPIC_MODELS,
+  typeof ANTHROPIC_IMAGE_MODELS
+> {
   name = "anthropic";
   models = ANTHROPIC_MODELS;
+  imageModels = ANTHROPIC_IMAGE_MODELS;
   private client: Anthropic;
 
   constructor(config: AnthropicAdapterConfig) {

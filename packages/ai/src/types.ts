@@ -188,9 +188,57 @@ export interface EmbeddingResult {
   };
 }
 
-export interface AIAdapter<TModels extends readonly string[] = readonly string[]> {
+export interface ImageGenerationOptions {
+  model: string;
+  prompt: string;
+  /** Number of images to generate (default: 1) */
+  n?: number;
+  /** Image size in format "widthxheight" (e.g., "1024x1024") */
+  size?: string;
+  /** Aspect ratio in format "width:height" (e.g., "16:9") */
+  aspectRatio?: string;
+  /** Seed for reproducible generation */
+  seed?: number;
+  /** Maximum images per API call (for batching) */
+  maxImagesPerCall?: number;
+  /** Provider-specific options */
+  providerOptions?: Record<string, any>;
+  /** Abort signal for cancellation */
+  abortSignal?: AbortSignal;
+  /** Custom headers */
+  headers?: Record<string, string>;
+}
+
+export interface ImageData {
+  /** Base64-encoded image data */
+  base64: string;
+  /** Binary image data */
+  uint8Array: Uint8Array;
+  /** MIME type of the image */
+  mediaType: string;
+}
+
+export interface ImageGenerationResult {
+  /** Generated image (when n=1) */
+  image?: ImageData;
+  /** Generated images (when n>1) */
+  images?: ImageData[];
+  /** Warnings from the provider */
+  warnings?: string[];
+  /** Provider-specific metadata */
+  providerMetadata?: Record<string, any>;
+  /** Response metadata */
+  response?: {
+    id: string;
+    model: string;
+    timestamp: number;
+  };
+}
+
+export interface AIAdapter<TModels extends readonly string[] = readonly string[], TImageModels extends readonly string[] = readonly string[]> {
   name: string;
   models: TModels;
+  imageModels?: TImageModels;
 
   // Chat methods
   chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResult>;
@@ -212,6 +260,9 @@ export interface AIAdapter<TModels extends readonly string[] = readonly string[]
 
   // Embeddings
   createEmbeddings(options: EmbeddingOptions): Promise<EmbeddingResult>;
+
+  // Image generation (optional)
+  generateImage?(options: ImageGenerationOptions): Promise<ImageGenerationResult>;
 }
 
 export interface AIAdapterConfig {

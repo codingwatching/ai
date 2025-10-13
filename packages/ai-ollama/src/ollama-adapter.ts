@@ -35,11 +35,17 @@ const OLLAMA_MODELS = [
   "gpt-oss:20b"
 ] as const;
 
+const OLLAMA_IMAGE_MODELS = [] as const;
+
 export type OllamaModel = (typeof OLLAMA_MODELS)[number];
 
-export class OllamaAdapter extends BaseAdapter<typeof OLLAMA_MODELS> {
+export class OllamaAdapter extends BaseAdapter<
+  typeof OLLAMA_MODELS,
+  typeof OLLAMA_IMAGE_MODELS
+> {
   name = "ollama";
   models = OLLAMA_MODELS;
+  imageModels = OLLAMA_IMAGE_MODELS;
   private client: Ollama;
 
   constructor(config: OllamaAdapterConfig = {}) {

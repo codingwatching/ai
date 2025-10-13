@@ -11,6 +11,9 @@ import {
   type SummarizationResult,
   type EmbeddingOptions,
   type EmbeddingResult,
+  type ImageGenerationOptions,
+  type ImageGenerationResult,
+  type ImageData,
 } from "@tanstack/ai";
 
 export interface OpenAIAdapterConfig extends AIAdapterConfig {
@@ -33,11 +36,18 @@ const OPENAI_MODELS = [
   "text-embedding-3-large",
 ] as const;
 
-export type OpenAIModel = (typeof OPENAI_MODELS)[number];
+const OPENAI_IMAGE_MODELS = [
+  "dall-e-3",
+  "dall-e-2",
+] as const;
 
-export class OpenAIAdapter extends BaseAdapter<typeof OPENAI_MODELS> {
+export type OpenAIModel = (typeof OPENAI_MODELS)[number];
+export type OpenAIImageModel = (typeof OPENAI_IMAGE_MODELS)[number];
+
+export class OpenAIAdapter extends BaseAdapter<typeof OPENAI_MODELS, typeof OPENAI_IMAGE_MODELS> {
   name = "openai";
   models = OPENAI_MODELS;
+  imageModels = OPENAI_IMAGE_MODELS;
   private client: OpenAI;
 
   constructor(config: OpenAIAdapterConfig) {
@@ -434,6 +444,92 @@ export class OpenAIAdapter extends BaseAdapter<typeof OPENAI_MODELS> {
         totalTokens: response.usage.total_tokens,
       },
     };
+  }
+
+  async generateImage(options: ImageGenerationOptions): Promise<ImageGenerationResult> {
+    const numImages = options.n || 1;
+    const model = options.model as OpenAIImageModel;
+
+    // Determine max images per call based on model
+    const maxPerCall = options.maxImagesPerCall || (model === "dall-e-3" ? 1 : 10);
+
+    // Calculate how many API calls we need
+    const numCalls = Math.ceil(numImages / maxPerCall);
+    const allImages: ImageData[] = [];
+
+    // Make batched API calls
+    for (let i = 0; i < numCalls; i++) {
+      const imagesThisCall = Math.min(maxPerCall, numImages - allImages.length);
+
+      const requestParams: OpenAI.Images.ImageGenerateParams = {
+        model,
+        prompt: options.prompt,
+        n: imagesThisCall,
+        ...(options.size && { size: options.size as any }),
+        ...(options.seed && model === "dall-e-3" && { seed: options.seed }),
+        response_format: "b64_json", // Always request base64
+      };
+
+      // Add provider-specific options
+      if (options.providerOptions?.openai) {
+        Object.assign(requestParams, options.providerOptions.openai);
+      }
+
+      const response = await this.client.images.generate(requestParams, {
+        signal: options.abortSignal,
+        headers: options.headers,
+      });
+
+      // Convert response to ImageData format
+      if (response.data) {
+        for (const image of response.data) {
+          if (image.b64_json) {
+            const base64 = image.b64_json;
+            const uint8Array = this.base64ToUint8Array(base64);
+
+            allImages.push({
+              base64: `data:image/png;base64,${base64}`,
+              uint8Array,
+              mediaType: "image/png",
+            });
+          }
+        }
+      }
+    }
+
+    // Extract provider metadata if available
+    const providerMetadata: Record<string, any> = {};
+    if (options.providerOptions?.openai) {
+      providerMetadata.openai = {
+        images: allImages.map(() => ({})),
+      };
+    }
+
+    return {
+      ...(numImages === 1 ? { image: allImages[0] } : { images: allImages }),
+      providerMetadata,
+      response: {
+        id: this.generateId(),
+        model,
+        timestamp: Date.now(),
+      },
+    };
+  }
+
+  private base64ToUint8Array(base64: string): Uint8Array {
+    // Remove data URL prefix if present
+    const base64Data = base64.replace(/^data:image\/\w+;base64,/, '');
+
+    // Decode base64 to binary string
+    const binaryString = atob(base64Data);
+
+    // Convert binary string to Uint8Array
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    return bytes;
   }
 
   private buildSummarizationPrompt(options: SummarizationOptions): string {

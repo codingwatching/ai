@@ -9,13 +9,18 @@ import type {
   SummarizationResult,
   EmbeddingOptions,
   EmbeddingResult,
+  ImageGenerationOptions,
+  ImageGenerationResult,
   Tool,
 } from "./types";
 
-type AdapterMap = Record<string, AIAdapter<readonly string[]>>;
+type AdapterMap = Record<string, AIAdapter<readonly string[], readonly string[]>>;
 
 // Extract model type from an adapter
-type ExtractModels<T> = T extends AIAdapter<infer M> ? M[number] : string;
+type ExtractModels<T> = T extends AIAdapter<infer M, any> ? M[number] : string;
+
+// Extract image model type from an adapter
+type ExtractImageModels<T> = T extends AIAdapter<any, infer M> ? M[number] : string;
 
 // Type for a single fallback configuration (discriminated union)
 type AdapterFallback<TAdapters extends AdapterMap> = {
@@ -23,6 +28,20 @@ type AdapterFallback<TAdapters extends AdapterMap> = {
     adapter: K;
     model: ExtractModels<TAdapters[K]>;
   };
+}[keyof TAdapters & string];
+
+// Type for a single image fallback configuration
+type ImageAdapterFallback<TAdapters extends AdapterMap> = {
+  [K in keyof TAdapters & string]: TAdapters[K] extends AIAdapter<any, infer ImageModels>
+  ? ImageModels extends readonly string[]
+  ? ImageModels['length'] extends 0
+  ? never
+  : {
+    adapter: K;
+    model: ExtractImageModels<TAdapters[K]>;
+  }
+  : never
+  : never;
 }[keyof TAdapters & string];
 
 // Type for tool registry - maps tool names to their Tool definitions
@@ -171,6 +190,33 @@ type EmbeddingOptionsWithFallback<TAdapters extends AdapterMap> = Omit<
    * Ordered list of fallbacks to try. If the first fails, will try the next, and so on.
    */
   fallbacks: ReadonlyArray<AdapterFallback<TAdapters>>;
+};
+
+type ImageGenerationOptionsWithAdapter<TAdapters extends AdapterMap> = {
+  [K in keyof TAdapters & string]: TAdapters[K] extends AIAdapter<any, infer ImageModels>
+  ? ImageModels extends readonly string[]
+  ? ImageModels['length'] extends 0
+  ? never
+  : Omit<ImageGenerationOptions, "model"> & {
+    adapter: K;
+    model: ExtractImageModels<TAdapters[K]>;
+    /**
+     * Optional fallbacks to try if the primary adapter fails.
+     */
+    fallbacks?: ReadonlyArray<ImageAdapterFallback<TAdapters>>;
+  }
+  : never
+  : never;
+}[keyof TAdapters & string];
+
+type ImageGenerationOptionsWithFallback<TAdapters extends AdapterMap> = Omit<
+  ImageGenerationOptions,
+  "model"
+> & {
+  /**
+   * Ordered list of fallbacks to try. If the first fails, will try the next, and so on.
+   */
+  fallbacks: ReadonlyArray<ImageAdapterFallback<TAdapters>>;
 };
 
 export class AI<T extends AdapterMap = AdapterMap, TTools extends ToolRegistry = ToolRegistry> {
@@ -1111,14 +1157,129 @@ export class AI<T extends AdapterMap = AdapterMap, TTools extends ToolRegistry =
   }
 
   /**
+   * Generate images from a text prompt
+   * Supports single adapter mode with optional fallbacks
+   * 
+   * @example
+   * ```typescript
+   * // Single image
+   * const { image } = await ai.image({
+   *   adapter: 'openai',
+   *   model: 'dall-e-3',
+   *   prompt: 'A cat in a space suit',
+   *   size: '1024x1024'
+   * });
+   * 
+   * // Multiple images
+   * const { images } = await ai.image({
+   *   adapter: 'openai',
+   *   model: 'dall-e-2',
+   *   prompt: 'A cat in a space suit',
+   *   n: 4
+   * });
+   * ```
+   */
+  async image(
+    options:
+      | ImageGenerationOptionsWithAdapter<T>
+      | ImageGenerationOptionsWithFallback<T>
+  ): Promise<ImageGenerationResult> {
+    // Check if this is fallback-only mode (no primary adapter specified)
+    if (!("adapter" in options)) {
+      // Fallback-only mode
+      const { fallbacks, ...restOptions } = options;
+      const fallbackList = fallbacks && fallbacks.length > 0 ? fallbacks : undefined;
+
+      if (!fallbackList || fallbackList.length === 0) {
+        throw new Error(
+          "No fallbacks specified. Either provide fallbacks in options or ensure at least one adapter supports image generation."
+        );
+      }
+
+      return this.tryWithFallback(
+        fallbackList as any,
+        async (fallback) => {
+          const adapter = this.getAdapter(fallback.adapter);
+          if (!adapter.generateImage) {
+            throw new Error(
+              `Adapter "${fallback.adapter}" does not support image generation`
+            );
+          }
+          return adapter.generateImage({
+            ...restOptions,
+            model: fallback.model,
+          } as ImageGenerationOptions);
+        },
+        "image"
+      );
+    }
+
+    // Single adapter mode (with optional fallbacks)
+    const { adapter, model, fallbacks, ...restOptions } = options;
+
+    // Get fallback list (from options or constructor)
+    const fallbackList = fallbacks && fallbacks.length > 0
+      ? fallbacks
+      : undefined;
+
+    const adapterInstance = this.getAdapter(adapter);
+
+    // Check if adapter supports image generation
+    if (!adapterInstance.generateImage) {
+      throw new Error(
+        `Adapter "${adapter}" does not support image generation. Available image adapters: ${Object.entries(this.adapters)
+          .filter(([_, a]) => a.generateImage)
+          .map(([name]) => name)
+          .join(", ") || "none"}`
+      );
+    }
+
+    // Try primary adapter first
+    try {
+      return await adapterInstance.generateImage({
+        ...restOptions,
+        model,
+      } as ImageGenerationOptions);
+    } catch (primaryError: any) {
+      // If no fallbacks available, throw the error
+      if (!fallbackList || fallbackList.length === 0) {
+        throw primaryError;
+      }
+
+      // Try fallbacks
+      console.warn(
+        `[AI] Primary adapter "${adapter}" with model "${model}" failed for image:`,
+        primaryError.message
+      );
+
+      return this.tryWithFallback(
+        fallbackList as any,
+        async (fallback) => {
+          const fallbackAdapter = this.getAdapter(fallback.adapter);
+          if (!fallbackAdapter.generateImage) {
+            throw new Error(
+              `Fallback adapter "${fallback.adapter}" does not support image generation`
+            );
+          }
+          return fallbackAdapter.generateImage({
+            ...restOptions,
+            model: fallback.model,
+          } as ImageGenerationOptions);
+        },
+        "image (after primary failure)"
+      );
+    }
+  }
+
+  /**
    * Add a new adapter
    */
   addAdapter<K extends string>(
     name: K,
-    adapter: AIAdapter<readonly string[]>
-  ): AI<T & Record<K, AIAdapter<readonly string[]>>> {
+    adapter: AIAdapter<readonly string[], readonly string[]>
+  ): AI<T & Record<K, AIAdapter<readonly string[], readonly string[]>>> {
     const newAdapters = { ...this.adapters, [name]: adapter } as T &
-      Record<K, AIAdapter<readonly string[]>>;
+      Record<K, AIAdapter<readonly string[], readonly string[]>>;
     return new AI({ adapters: newAdapters });
   }
 }

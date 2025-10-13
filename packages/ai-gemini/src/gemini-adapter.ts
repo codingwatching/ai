@@ -29,11 +29,17 @@ const GEMINI_MODELS = [
   "embedding-001",
 ] as const;
 
+const GEMINI_IMAGE_MODELS = [] as const;
+
 export type GeminiModel = (typeof GEMINI_MODELS)[number];
 
-export class GeminiAdapter extends BaseAdapter<typeof GEMINI_MODELS> {
+export class GeminiAdapter extends BaseAdapter<
+  typeof GEMINI_MODELS,
+  typeof GEMINI_IMAGE_MODELS
+> {
   name = "gemini";
   models = GEMINI_MODELS;
+  imageModels = GEMINI_IMAGE_MODELS;
   private client: GoogleGenerativeAI;
 
   constructor(config: GeminiAdapterConfig) {
