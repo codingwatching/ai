@@ -927,11 +927,7 @@ export const AIProvider: ParentComponent = (props) => {
             addChunk(conversationId, chunk);
           }
 
-          // Mark as completed when we receive a done chunk with a terminal finish reason
-          const finishReason = e.payload.finishReason;
-          if (finishReason === "stop" || finishReason === "end_turn" || finishReason === "length") {
-            updateConversation(conversationId, { status: "completed", completedAt: e.payload.timestamp });
-          }
+          updateConversation(conversationId, { status: "completed", completedAt: e.payload.timestamp });
         },
         { withEventTarget: false }
       )

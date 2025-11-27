@@ -21,6 +21,7 @@
     "@tanstack/ai-openai": "workspace:*",
     "@tanstack/ai-react": "workspace:*",
     "@tanstack/ai-react-ui": "workspace:*",
+    "@tanstack/react-ai-devtools": "workspace:*",
     "@tanstack/nitro-v2-vite-plugin": "^1.132.31",
     "@tanstack/react-devtools": "^0.8.0",
     "@tanstack/react-router": "^1.132.0",

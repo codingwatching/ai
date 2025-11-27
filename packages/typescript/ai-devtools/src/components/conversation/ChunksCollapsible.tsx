@@ -14,7 +14,7 @@ export const ChunksCollapsible: Component<ChunksCollapsibleProps> = (props) => {
   const accumulatedContent = () =>
     props.chunks
       .filter((c) => c.type === "content" && (c.content || c.delta))
-      .map((c) => c.delta || c.content)
+      .map((c) => c.content)
       .join("");
 
   // Total raw chunks = sum of all chunkCounts

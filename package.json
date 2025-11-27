@@ -24,5 +24,16 @@
     "tsdown": "^0.15.9",
     "typescript": "^5.7.2",
     "vitest": "^4.0.13"
+  },
+  "pnpm": {
+    "overrides": {
+      "@tanstack/ai": "workspace:*",
+      "@tanstack/ai-fallback": "workspace:*",
+      "@tanstack/ai-openai": "workspace:*",
+      "@tanstack/ai-anthropic": "workspace:*",
+      "@tanstack/ai-devtools": "workspace:*",
+      "@tanstack/react-ai-devtools": "workspace:*",
+      "@tanstack/solid-ai-devtools": "workspace:*"
+    }
   }
 }
