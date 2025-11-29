@@ -1,11 +1,31 @@
 import { toolDefinition } from '@tanstack/ai'
+import { createServerFnTool } from '@tanstack/ai-react'
 import { z } from 'zod'
+import guitars from '@/data/example-guitars'
 
-// Tool definition for getting guitars
-export const getGuitarsToolDef = toolDefinition({
+// Using createServerFnTool to create tool definition, server implementation, and server function
+// This gives you three things in one:
+// - getGuitars.toolDefinition → pass to chat() for client execution
+// - getGuitars.server → pass to chat() for server execution (used in api.tanchat.ts)
+// - getGuitars.serverFn({}) → call directly from components
+//
+// Example usage in a component:
+//   const guitars = await getGuitars.serverFn({})
+export const getGuitars = createServerFnTool({
   name: 'getGuitars',
   description: 'Get all products from the database',
   inputSchema: z.object({}),
+  outputSchema: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      image: z.string(),
+      description: z.string(),
+      shortDescription: z.string(),
+      price: z.number(),
+    }),
+  ),
+  execute: () => guitars,
 })
 
 // Tool definition for guitar recommendation

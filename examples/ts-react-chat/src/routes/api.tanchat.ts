@@ -4,11 +4,10 @@ import { openai } from '@tanstack/ai-openai'
 import {
   addToCartToolDef,
   addToWishListToolDef,
-  getGuitarsToolDef,
+  getGuitars,
   getPersonalGuitarPreferenceToolDef,
   recommendGuitarToolDef,
 } from '@/lib/guitar-tools'
-import guitars from '@/data/example-guitars'
 
 const SYSTEM_PROMPT = `You are a helpful assistant for a guitar store.
 
@@ -32,8 +31,6 @@ Step 1: Call getGuitars()
 Step 2: Call recommendGuitar(id: "6") 
 Step 3: Done - do NOT add any text after calling recommendGuitar
 `
-
-const getGuitarsToolServer = getGuitarsToolDef.server(() => guitars)
 
 const addToCartToolServer = addToCartToolDef.server((args) => ({
   success: true,
@@ -63,7 +60,7 @@ export const Route = createFileRoute('/api/tanchat')({
             adapter: openai(),
             model: 'gpt-5',
             tools: [
-              getGuitarsToolServer,
+              getGuitars.server, // Server function tool
               recommendGuitarToolDef, // No server execute - client will handle
               addToCartToolServer,
               addToWishListToolDef,

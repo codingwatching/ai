@@ -164,9 +164,49 @@ You now have a working chat application. The `useChat` hook handles:
 - Loading states
 - Error handling
 
+## Enhanced with TanStack Start
+
+If you're using **TanStack Start** (React Start or Solid Start), you can use `createServerFnTool` to share implementations between AI tools and server functions:
+
+```typescript
+// lib/tools.ts
+import { createServerFnTool } from '@tanstack/ai-react'
+import { z } from 'zod'
+
+export const getProducts = createServerFnTool({
+  name: 'getProducts',
+  description: 'Search for products',
+  inputSchema: z.object({
+    query: z.string(),
+  }),
+  outputSchema: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    price: z.number(),
+  })),
+  execute: async ({ query }) => {
+    return await db.products.search(query)
+  },
+})
+
+// API route - Use in AI chat
+chat({ tools: [getProducts.server] })
+
+// Component - Call directly
+const products = await getProducts.serverFn({ query: 'laptop' })
+```
+
+**Benefits:**
+- ✅ Define once, use twice (AI tool + server function)
+- ✅ Full type safety everywhere
+- ✅ Automatic Zod validation
+- ✅ Same logic for AI and direct calls
+
+Learn more in the [Server Function Tools](../guides/server-function-tools.md) guide.
+
 ## Next Steps
 
 - Learn about [Tools](../guides/tools) to add function calling
-- Explore [Server Tools](../guides/server-tools) for backend operations
+- Explore [Server Function Tools](../guides/server-function-tools) for TanStack Start integration
 - Check out [Client Tools](../guides/client-tools) for frontend operations
 - See the [API Reference](../api/ai) for more options

@@ -40,9 +40,33 @@ A powerful, type-safe AI SDK for building AI-powered applications.
 - Provider-agnostic adapters (OpenAI, Anthropic, Gemini, Ollama, etc.)
 - Chat completion, streaming, and agent loop strategies
 - Headless chat state management with adapters (SSE, HTTP stream, custom)
-- Type-safe tools with server/client execution
+- Isomorphic type-safe tools with server/client execution
+- **Enhanced integration with TanStack Start** - Share implementations between AI tools and server functions
 
 ### <a href="https://tanstack.com/ai">Read the docs →</b></a>
+
+## Works Great with TanStack Start!
+
+TanStack AI works with **any** framework (Next.js, Express, Remix, etc.), but it's **even better** with **TanStack Start**:
+
+```typescript
+import { createServerFnTool } from '@tanstack/ai-react'
+
+// Define once, get both AI tool AND server function
+const getProducts = createServerFnTool({
+  name: 'getProducts',
+  inputSchema: z.object({ query: z.string() }),
+  execute: async ({ query }) => db.products.search(query),
+})
+
+// Use in AI chat
+chat({ tools: [getProducts.server] })
+
+// Call directly from components - same implementation!
+const products = await getProducts.serverFn({ query: 'laptop' })
+```
+
+No duplicate logic, full type safety, automatic validation. See [docs](https://tanstack.com/ai) for details.
 
 ## Get Involved
 
