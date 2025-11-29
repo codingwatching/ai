@@ -1,9 +1,6 @@
 import { createFileRoute } from '@tanstack/solid-router'
-import { chat, toStreamResponse, maxIterations } from '@tanstack/ai'
-// import { openai } from '@tanstack/ai-openai'
+import { chat, maxIterations, toStreamResponse } from '@tanstack/ai'
 import { anthropic } from '@tanstack/ai-anthropic'
-// import { ollama } from "@tanstack/ai-ollama";
-// import { gemini } from "@tanstack/ai-gemini";
 import { serverTools } from '@/lib/guitar-tools'
 
 const SYSTEM_PROMPT = `You are a helpful assistant for a guitar store.
@@ -62,9 +59,6 @@ export const Route = createFileRoute('/api/tanchat')({
           const stream = chat({
             adapter: anthropic(),
             model: 'claude-sonnet-4-5-20250929',
-            // model: "gpt-4-turbo",
-            // model: "smollm",
-            // model: "gemini-2.5-flash",
             tools: serverTools,
             systemPrompts: [SYSTEM_PROMPT],
             agentLoopStrategy: maxIterations(20),
