@@ -75,7 +75,7 @@ export async function POST(request: Request) {
 ## Example: With Tools
 
 ```typescript
-import { chat, tool } from "@tanstack/ai";
+import { chat, toolDefinition } from "@tanstack/ai";
 import { anthropic } from "@tanstack/ai-anthropic";
 import { z } from "zod";
 
@@ -83,15 +83,17 @@ const adapter = anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-const searchDatabase = tool({
+const searchDatabaseDef = toolDefinition({
+  name: "search_database",
   description: "Search the database",
   inputSchema: z.object({
     query: z.string(),
   }),
-  execute: async ({ query }) => {
-    // Search database
-    return { results: [...] };
-  },
+});
+
+const searchDatabase = searchDatabaseDef.server(async ({ query }) => {
+  // Search database
+  return { results: [...] };
 });
 
 const stream = chat({

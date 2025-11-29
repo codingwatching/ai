@@ -157,10 +157,10 @@ sequenceDiagram
 ### Server Tool Definition
 
 ```typescript
-import { tool } from "@tanstack/ai";
+import { toolDefinition } from "@tanstack/ai";
 import { z } from "zod";
 
-const getUserData = tool({
+const getUserDataDef = toolDefinition({
   name: "get_user_data",
   description: "Get user information from the database",
   inputSchema: z.object({
@@ -171,15 +171,16 @@ const getUserData = tool({
     email: z.string().email(),
     createdAt: z.string(),
   }),
-  execute: async ({ userId }) => {
-    // This runs on the server - secure access to database
-    const user = await db.users.findUnique({ where: { id: userId } });
-    return {
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt.toISOString(),
-    };
-  },
+});
+
+const getUserData = getUserDataDef.server(async ({ userId }) => {
+  // This runs on the server - secure access to database
+  const user = await db.users.findUnique({ where: { id: userId } });
+  return {
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt.toISOString(),
+  };
 });
 ```
 
@@ -243,18 +244,26 @@ sequenceDiagram
 **Server (Define the tool):**
 
 ```typescript
-import { tool } from "@tanstack/ai";
+import { toolDefinition } from "@tanstack/ai";
 import { z } from "zod";
 
-// Client tool - no execute function
-export const updateUI = tool({
+// Client tool definition - will be executed on client
+export const updateUIDef = toolDefinition({
   name: "update_ui",
   description: "Update the UI with new information",
   inputSchema: z.object({
     message: z.string().describe("Message to display"),
     type: z.enum(["success", "error", "info"]).describe("Message type"),
   }),
-  // No execute - will be handled on client
+  outputSchema: z.object({
+    success: z.boolean(),
+  }),
+});
+
+// Pass the definition to chat() - no .server() needed for client tools
+chat({
+  tools: [updateUIDef], // Definition without execute - client will handle it
+  // ...
 });
 ```
 
@@ -266,24 +275,16 @@ import { useChat, fetchServerSentEvents } from "@tanstack/ai-react";
 function ChatComponent() {
   const [notification, setNotification] = useState(null);
 
+  // Create client-side tool implementation
+  const updateUI = updateUIDef.client(async ({ message, type }) => {
+    // Update React state
+    setNotification({ message, type });
+    return { success: true };
+  });
+
   const { messages, sendMessage } = useChat({
     connection: fetchServerSentEvents("/api/chat"),
-    onToolCall: async ({ toolName, input }) => {
-      // Handle client-side tool execution
-      switch (toolName) {
-        case "update_ui":
-          // Update React state
-          setNotification({ message: input.message, type: input.type });
-          return { success: true };
-
-        case "save_to_local_storage":
-          localStorage.setItem(input.key, input.value);
-          return { saved: true };
-
-        default:
-          throw new Error(`Unknown client tool: ${toolName}`);
-      }
-    },
+    tools: [updateUI], // Pass client tool implementations
   });
 
   // ... rest of component
@@ -384,33 +385,36 @@ Here's a real-world example of the agentic cycle:
 ### Code Example: Agentic Weather Assistant
 
 ```typescript
-// Tools
-const getWeather = tool({
+// Tool definitions
+const getWeatherDef = toolDefinition({
   name: "get_weather",
   description: "Get current weather for a city",
   inputSchema: z.object({
     city: z.string(),
   }),
-  execute: async ({ city }) => {
-    const response = await fetch(`https://api.weather.com/v1/${city}`);
-    return await response.json();
-  },
 });
 
-const getClothingAdvice = tool({
+const getClothingAdviceDef = toolDefinition({
   name: "get_clothing_advice",
   description: "Get clothing recommendations based on weather",
   inputSchema: z.object({
     temperature: z.number(),
     conditions: z.string(),
   }),
-  execute: async ({ temperature, conditions }) => {
-    // Business logic for clothing recommendations
-    if (temperature < 50) {
-      return { recommendation: "Wear a warm jacket" };
-    }
-    return { recommendation: "Light clothing is fine" };
-  },
+});
+
+// Server implementations
+const getWeather = getWeatherDef.server(async ({ city }) => {
+  const response = await fetch(`https://api.weather.com/v1/${city}`);
+  return await response.json();
+});
+
+const getClothingAdvice = getClothingAdviceDef.server(async ({ temperature, conditions }) => {
+  // Business logic for clothing recommendations
+  if (temperature < 50) {
+    return { recommendation: "Wear a warm jacket" };
+  }
+  return { recommendation: "Light clothing is fine" };
 });
 
 // Server route
@@ -558,7 +562,7 @@ sequenceDiagram
 **Define tool with approval:**
 
 ```typescript
-const sendEmail = tool({
+const sendEmailDef = toolDefinition({
   name: "send_email",
   description: "Send an email",
   inputSchema: z.object({
@@ -567,10 +571,11 @@ const sendEmail = tool({
     body: z.string(),
   }),
   needsApproval: true, // Requires user approval
-  execute: async ({ to, subject, body }) => {
-    await emailService.send({ to, subject, body });
-    return { success: true };
-  },
+});
+
+const sendEmail = sendEmailDef.server(async ({ to, subject, body }) => {
+  await emailService.send({ to, subject, body });
+  return { success: true };
 });
 ```
 
@@ -615,27 +620,35 @@ Some tools need to execute in both environments:
 
 ```typescript
 // Server: Fetch data from database
-const fetchUserPreferences = tool({
+const fetchUserPrefsDef = toolDefinition({
   name: "fetch_user_preferences",
   description: "Get user preferences from server",
   inputSchema: z.object({
     userId: z.string(),
   }),
-  execute: async ({ userId }) => {
-    const prefs = await db.userPreferences.findUnique({ where: { userId } });
-    return prefs;
-  },
+});
+
+const fetchUserPreferences = fetchUserPrefsDef.server(async ({ userId }) => {
+  const prefs = await db.userPreferences.findUnique({ where: { userId } });
+  return prefs;
 });
 
 // Client: Apply preferences to UI
-const applyPreferences = tool({
+const applyPrefsDef = toolDefinition({
   name: "apply_preferences",
   description: "Apply user preferences to the UI",
   inputSchema: z.object({
     theme: z.string(),
     language: z.string(),
   }),
-  // No execute - client-side only
+});
+
+// On client, create client implementation
+const applyPreferences = applyPrefsDef.client(async ({ theme, language }) => {
+  // Update UI state with preferences
+  document.body.className = theme;
+  i18n.changeLanguage(language);
+  return { applied: true };
 });
 
 // Usage: LLM can chain these together
