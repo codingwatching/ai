@@ -1,12 +1,12 @@
 import { ChatClient } from '@tanstack/ai-client'
-import type { ModelMessage, AnyClientTool } from '@tanstack/ai'
-import type { UseChatOptions, UseChatReturn, UIMessage } from './types'
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
 } from 'solid-js'
+import type { AnyClientTool, ModelMessage } from '@tanstack/ai'
+import type { UIMessage, UseChatOptions, UseChatReturn } from './types'
 
 export function useChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
   options: UseChatOptions<TTools> = {} as UseChatOptions<TTools>,
@@ -48,7 +48,6 @@ export function useChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
     })
     // Only recreate when clientId changes
     // Connection and other options are captured at creation time
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId])
 
   // Sync initial messages on mount only

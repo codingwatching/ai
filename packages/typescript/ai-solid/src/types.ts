@@ -1,10 +1,10 @@
-import type { ModelMessage, AnyClientTool } from '@tanstack/ai'
+import type { Accessor } from 'solid-js'
+import type { AnyClientTool, ModelMessage } from '@tanstack/ai'
 import type {
   ChatClientOptions,
-  UIMessage,
   ChatRequestBody,
+  UIMessage,
 } from '@tanstack/ai-client'
-import { Accessor } from 'solid-js'
 
 // Re-export types from ai-client
 export type { UIMessage, ChatRequestBody }
