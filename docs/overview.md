@@ -2,15 +2,28 @@
 
 A powerful, type-safe AI SDK for building AI-powered applications with React, Node.js, and other JavaScript frameworks.
 
-## Works Great With TanStack Start!
+## Enhanced with TanStack Start!
 
-TanStack AI is designed to work with **any** framework, but it's **even better** with **TanStack Start** (React Start or Solid Start). With TanStack Start, you can:
+TanStack AI works with **any** framework using `toolDefinition()` and `.server()`.
 
-- **Share implementations** between AI tools and regular server functions
-- **Use `createServerFnTool`** to define once and get both an AI tool AND a callable server function
-- **Full type safety** from server to client
+**With TanStack Start** (React Start or Solid Start), you get a bonus feature: `createServerFnTool` lets you share implementations between AI tools and server functions.
 
-You can absolutely use TanStack AI without TanStack Start, but the integration is seamless when you do!
+**Without TanStack Start:**
+```typescript
+// Use toolDefinition().server() - works everywhere
+const getTool = toolDefinition({...}).server(async (args) => {...})
+chat({ tools: [getTool] })
+```
+
+**With TanStack Start:**
+```typescript
+// Get AI tool AND callable server function from one definition
+const getTool = createServerFnTool({...})
+chat({ tools: [getTool.server] })
+await getTool.serverFn(args) // Bonus: call directly from components!
+```
+
+The core library works everywhere. TanStack Start just adds conveniences!
 
 ## Quick Start
 

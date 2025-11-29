@@ -164,43 +164,49 @@ You now have a working chat application. The `useChat` hook handles:
 - Loading states
 - Error handling
 
-## Enhanced with TanStack Start
+## Bonus: TanStack Start Integration
 
-If you're using **TanStack Start** (React Start or Solid Start), you can use `createServerFnTool` to share implementations between AI tools and server functions:
+TanStack AI works with any framework. If you're using **TanStack Start** specifically, you get a bonus: `createServerFnTool` lets you share implementations between AI tools and server functions.
 
+**Standard approach (any framework):**
 ```typescript
-// lib/tools.ts
-import { createServerFnTool } from '@tanstack/ai-react'
-import { z } from 'zod'
+import { toolDefinition } from '@tanstack/ai'
 
-export const getProducts = createServerFnTool({
+const getProductsDef = toolDefinition({
   name: 'getProducts',
-  description: 'Search for products',
-  inputSchema: z.object({
-    query: z.string(),
-  }),
-  outputSchema: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    price: z.number(),
-  })),
-  execute: async ({ query }) => {
-    return await db.products.search(query)
-  },
+  inputSchema: z.object({ query: z.string() }),
 })
 
-// API route - Use in AI chat
+const getProducts = getProductsDef.server(async ({ query }) => {
+  return await db.products.search(query)
+})
+
+chat({ tools: [getProducts] })
+```
+
+**TanStack Start bonus:**
+```typescript
+import { createServerFnTool } from '@tanstack/ai-react'
+
+// Get AI tool AND callable server function from one definition
+const getProducts = createServerFnTool({
+  name: 'getProducts',
+  inputSchema: z.object({ query: z.string() }),
+  outputSchema: z.array(z.object({ id: z.string(), name: z.string() })),
+  execute: async ({ query }) => db.products.search(query),
+})
+
+// Use in AI chat
 chat({ tools: [getProducts.server] })
 
-// Component - Call directly
+// Call directly from components (TanStack Start only!)
 const products = await getProducts.serverFn({ query: 'laptop' })
 ```
 
-**Benefits:**
-- ✅ Define once, use twice (AI tool + server function)
-- ✅ Full type safety everywhere
-- ✅ Automatic Zod validation
-- ✅ Same logic for AI and direct calls
+**TanStack Start Benefits:**
+- ✅ No duplicate logic between AI tools and server functions
+- ✅ Call server functions directly from components
+- ✅ No extra API endpoints needed
 
 Learn more in the [Server Function Tools](../guides/server-function-tools.md) guide.
 

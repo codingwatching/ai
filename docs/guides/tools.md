@@ -33,9 +33,9 @@ This approach provides:
 - **Code Reuse**: Define schemas once, use everywhere
 - **Flexibility**: Tools can execute on server, client, or both
 
-### With TanStack Start
+### Bonus: TanStack Start Integration
 
-If you're using TanStack Start, use `createServerFnTool` to get a tool definition, server implementation, AND a callable server function from a single definition:
+If you're using **TanStack Start** specifically, you can use `createServerFnTool` to avoid duplicating logic between AI tools and server functions:
 
 ```typescript
 import { createServerFnTool } from '@tanstack/ai-react' // or '@tanstack/ai-solid'
@@ -50,8 +50,10 @@ const getProducts = createServerFnTool({
 // Three variants from one definition:
 // 1. getProducts.toolDefinition - for client execution
 // 2. getProducts.server - for AI chat server execution
-// 3. getProducts.serverFn({ query: 'laptop' }) - call directly from components
+// 3. getProducts.serverFn({ query: 'laptop' }) - call directly (TanStack Start only!)
 ```
+
+**Note:** `createServerFnTool` requires TanStack Start. For other frameworks, use the standard `toolDefinition()` API shown above.
 
 See [Server Function Tools](./server-function-tools.md) for details.
 
