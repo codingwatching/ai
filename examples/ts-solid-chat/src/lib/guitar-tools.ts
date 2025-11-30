@@ -1,5 +1,6 @@
 import { toolDefinition } from '@tanstack/ai'
 import { createServerFnTool } from '@tanstack/ai-solid/start'
+import { clientTools as createClientTools } from '@tanstack/ai-client'
 import { z } from 'zod'
 import guitars from '@/data/example-guitars'
 
@@ -140,10 +141,10 @@ export const serverTools = [
   addToCartToolServer,
 ]
 
-// Client tools array
-export const clientTools = [
+// Client tools array with proper type inference
+export const clientTools = createClientTools(
   recommendGuitarToolClient,
   getPersonalGuitarPreferenceToolClient,
   addToWishListToolClient,
   addToCartToolClient,
-] as const
+)

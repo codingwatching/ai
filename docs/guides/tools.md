@@ -129,7 +129,11 @@ export async function POST(request: Request) {
 
 ```typescript
 import { useChat, fetchServerSentEvents } from "@tanstack/ai-react";
-import { createChatClientOptions, type InferChatMessages } from "@tanstack/ai-client";
+import { 
+  clientTools, 
+  createChatClientOptions, 
+  type InferChatMessages 
+} from "@tanstack/ai-client";
 import { updateUIDef, saveToStorageDef } from "./tools";
 
 // Create client implementations
@@ -144,12 +148,12 @@ const saveToStorage = saveToStorageDef.client((input) => {
   return { saved: true };
 });
 
-// Create typed chat options
-const clientTools = [updateUI, saveToStorage] as const;
+// Create typed tools array (no 'as const' needed!)
+const tools = clientTools(updateUI, saveToStorage);
 
 const chatOptions = createChatClientOptions({
   connection: fetchServerSentEvents("/api/chat"),
-  tools: clientTools,
+  tools,
 });
 
 // Infer message types for full type safety

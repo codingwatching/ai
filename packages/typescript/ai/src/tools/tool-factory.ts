@@ -58,7 +58,7 @@ export type InferToolName<T> = T extends { name: infer N } ? N : never
 /**
  * Extract the input type from a tool (inferred from Zod schema)
  */
-export type InferToolInput<T> = T extends { inputSchema: infer TInput }
+export type InferToolInput<T> = T extends { inputSchema?: infer TInput }
   ? TInput extends z.ZodType
     ? z.infer<TInput>
     : any
@@ -67,7 +67,7 @@ export type InferToolInput<T> = T extends { inputSchema: infer TInput }
 /**
  * Extract the output type from a tool (inferred from Zod schema)
  */
-export type InferToolOutput<T> = T extends { outputSchema: infer TOutput }
+export type InferToolOutput<T> = T extends { outputSchema?: infer TOutput }
   ? TOutput extends z.ZodType
     ? z.infer<TOutput>
     : any

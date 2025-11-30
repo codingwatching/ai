@@ -14,7 +14,11 @@ Main hook for managing chat state in React with full type safety.
 
 ```typescript
 import { useChat, fetchServerSentEvents } from "@tanstack/ai-react";
-import { createChatClientOptions, type InferChatMessages } from "@tanstack/ai-client";
+import { 
+  clientTools, 
+  createChatClientOptions, 
+  type InferChatMessages 
+} from "@tanstack/ai-client";
 
 function ChatComponent() {
   // Create client tool implementations
@@ -23,11 +27,12 @@ function ChatComponent() {
     return { success: true };
   });
 
-  const clientTools = [updateUI] as const;
+  // Create typed tools array (no 'as const' needed!)
+  const tools = clientTools(updateUI);
 
   const chatOptions = createChatClientOptions({
     connection: fetchServerSentEvents("/api/chat"),
-    tools: clientTools,
+    tools,
   });
 
   // Fully typed messages!
@@ -212,7 +217,11 @@ export function ChatWithApproval() {
 
 ```typescript
 import { useChat, fetchServerSentEvents } from "@tanstack/ai-react";
-import { createChatClientOptions, type InferChatMessages } from "@tanstack/ai-client";
+import { 
+  clientTools, 
+  createChatClientOptions, 
+  type InferChatMessages 
+} from "@tanstack/ai-client";
 import { updateUIDef, saveToStorageDef } from "./tool-definitions";
 import { useState } from "react";
 
@@ -231,11 +240,12 @@ export function ChatWithClientTools() {
     return { saved: true };
   });
 
-  const clientTools = [updateUI, saveToStorage] as const;
+  // Create typed tools array (no 'as const' needed!)
+  const tools = clientTools(updateUI, saveToStorage);
 
   const { messages, sendMessage } = useChat({
     connection: fetchServerSentEvents("/api/chat"),
-    tools: clientTools, // ✅ Automatic execution, full type safety
+    tools, // ✅ Automatic execution, full type safety
   });
 
   return (
@@ -297,11 +307,18 @@ See [Server Function Tools](../guides/server-function-tools.md) for details.
 Helper to create typed chat options (re-exported from `@tanstack/ai-client`).
 
 ```typescript
-import { createChatClientOptions, type InferChatMessages } from "@tanstack/ai-client";
+import { 
+  clientTools, 
+  createChatClientOptions, 
+  type InferChatMessages 
+} from "@tanstack/ai-client";
+
+// Create typed tools array (no 'as const' needed!)
+const tools = clientTools(tool1, tool2);
 
 const chatOptions = createChatClientOptions({
   connection: fetchServerSentEvents("/api/chat"),
-  tools: [tool1, tool2] as const,
+  tools,
 });
 
 type Messages = InferChatMessages<typeof chatOptions>;

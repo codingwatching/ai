@@ -13,7 +13,7 @@ export type {
   ChatRequestBody,
   InferChatMessages,
 } from './types'
-export { createChatClientOptions } from './types'
+export { clientTools, createChatClientOptions } from './types'
 export type {
   ExtractToolNames,
   ExtractToolInput,

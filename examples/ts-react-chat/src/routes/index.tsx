@@ -7,7 +7,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import rehypeHighlight from 'rehype-highlight'
 import remarkGfm from 'remark-gfm'
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
-import { createChatClientOptions } from '@tanstack/ai-client'
+import { clientTools, createChatClientOptions } from '@tanstack/ai-client'
 import { ThinkingPart } from '@tanstack/ai-react-ui'
 
 import type { InferChatMessages } from '@tanstack/ai-client'
@@ -46,16 +46,16 @@ const recommendGuitarToolClient = recommendGuitarToolDef.client(({ id }) => ({
   id,
 }))
 
-const clientTools = [
+const tools = clientTools(
   getPersonalGuitarPreferenceToolClient,
   addToWishListToolClient,
   addToCartToolClient,
   recommendGuitarToolClient,
-] as const
+)
 
 const chatOptions = createChatClientOptions({
   connection: fetchServerSentEvents('/api/tanchat'),
-  tools: clientTools,
+  tools,
 })
 
 type ChatMessages = InferChatMessages<typeof chatOptions>
@@ -377,7 +377,7 @@ function ChatPage() {
   const { messages, sendMessage, isLoading, addToolApprovalResponse, stop } =
     useChat({
       connection: chatOptions.connection,
-      tools: clientTools,
+      tools,
       onChunk: (chunk: any) => {
         setChunks((prev) => [...prev, chunk])
       },

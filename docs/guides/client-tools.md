@@ -69,7 +69,11 @@ Create client implementations with automatic execution and full type safety:
 ```typescript
 // app/chat.tsx
 import { useChat, fetchServerSentEvents } from "@tanstack/ai-react";
-import { createChatClientOptions, type InferChatMessages } from "@tanstack/ai-client";
+import { 
+  clientTools, 
+  createChatClientOptions, 
+  type InferChatMessages 
+} from "@tanstack/ai-client";
 import { updateUIDef, saveToLocalStorageDef } from "@/tools/definitions";
 import { useState } from "react";
 
@@ -88,12 +92,12 @@ function ChatComponent() {
     return { saved: true };
   });
 
-  // Step 2: Create typed chat options
-  const clientTools = [updateUI, saveToLocalStorage] as const;
+  // Step 2: Create typed tools array (no 'as const' needed!)
+  const tools = clientTools(updateUI, saveToLocalStorage);
 
   const chatOptions = createChatClientOptions({
     connection: fetchServerSentEvents("/api/chat"),
-    tools: clientTools,
+    tools,
   });
 
   // Step 3: Infer message types for full type safety
