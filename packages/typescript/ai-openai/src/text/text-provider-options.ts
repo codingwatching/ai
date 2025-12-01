@@ -405,7 +405,9 @@ function normalizeContent(
 /**
  * Extracts text content from a content value that may be string, null, or ContentPart array.
  */
-function extractTextContent(content: string | null | Array<ContentPart>): string {
+function extractTextContent(
+  content: string | null | Array<ContentPart>,
+): string {
   if (content === null) {
     return ''
   }
@@ -499,7 +501,12 @@ export function convertMessagesToInput(
     for (const part of contentParts) {
       openAIContent.push(
         convertContentPartToOpenAI(
-          part as ContentPart<OpenAIImageMetadata, OpenAIAudioMetadata, unknown, unknown>,
+          part as ContentPart<
+            OpenAIImageMetadata,
+            OpenAIAudioMetadata,
+            unknown,
+            unknown
+          >,
         ),
       )
     }

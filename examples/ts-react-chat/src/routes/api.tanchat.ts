@@ -1,5 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { assertMessages, chat, maxIterations, toStreamResponse } from '@tanstack/ai'
+import {
+  assertMessages,
+  chat,
+  maxIterations,
+  toStreamResponse,
+} from '@tanstack/ai'
 import { openai } from '@tanstack/ai-openai'
 import { gemini } from '@tanstack/ai-gemini'
 import {
@@ -62,11 +67,14 @@ export const Route = createFileRoute('/api/tanchat')({
 
         // Assert incoming messages are compatible with gpt-4o (text + image only)
         // This enables proper type checking for any additional messages we add
-        const messages = assertMessages({ adapter, model: "gpt-4o" }, incomingMessages)
+        const messages = assertMessages(
+          { adapter, model: 'gpt-4o' },
+          incomingMessages,
+        )
         try {
           const stream = chat({
             adapter,
-            model: "gpt-5",
+            model: 'gpt-5',
             tools: [
               getGuitars.server, // Server function tool
               recommendGuitarToolDef, // No server execute - client will handle
@@ -88,7 +96,6 @@ export const Route = createFileRoute('/api/tanchat')({
                     type: 'text',
                     text: 'What do you see?',
                   },
-
 
                   {
                     type: 'image',

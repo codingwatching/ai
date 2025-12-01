@@ -1,9 +1,6 @@
 import OpenAI_SDK from 'openai'
 import { BaseAdapter } from '@tanstack/ai'
-import {
-  OPENAI_CHAT_MODELS,
-  OPENAI_EMBEDDING_MODELS,
-} from './model-meta'
+import { OPENAI_CHAT_MODELS, OPENAI_EMBEDDING_MODELS } from './model-meta'
 import {
   convertMessagesToInput,
   validateTextProviderOptions,
@@ -392,14 +389,14 @@ export class OpenAI extends BaseAdapter<
   private mapChatOptionsToOpenAI(options: ChatOptions) {
     const providerOptions = options.providerOptions as
       | Omit<
-        InternalTextProviderOptions,
-        | 'max_output_tokens'
-        | 'tools'
-        | 'metadata'
-        | 'temperature'
-        | 'input'
-        | 'top_p'
-      >
+          InternalTextProviderOptions,
+          | 'max_output_tokens'
+          | 'tools'
+          | 'metadata'
+          | 'temperature'
+          | 'input'
+          | 'top_p'
+        >
       | undefined
     const input = convertMessagesToInput(options.messages)
     if (providerOptions) {

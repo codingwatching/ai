@@ -11,9 +11,7 @@ import type {
  * Helper to extract text content from string or ContentPart array
  * For multimodal content, this extracts only the text parts
  */
-function getTextContent(
-  content: string | null | Array<ContentPart>,
-): string {
+function getTextContent(content: string | null | Array<ContentPart>): string {
   if (content === null) {
     return ''
   }
@@ -22,7 +20,9 @@ function getTextContent(
   }
   // Extract text from ContentPart array
   return content
-    .filter((part): part is { type: 'text'; text: string } => part.type === 'text')
+    .filter(
+      (part): part is { type: 'text'; text: string } => part.type === 'text',
+    )
     .map((part) => part.text)
     .join('')
 }
@@ -84,20 +84,20 @@ export function uiMessageToModelMessages(
   const toolCalls =
     toolCallParts.length > 0
       ? toolCallParts
-        .filter(
-          (p) =>
-            p.state === 'input-complete' ||
-            p.state === 'approval-responded' ||
-            p.output !== undefined, // Include if has output (client tool result)
-        )
-        .map((p) => ({
-          id: p.id,
-          type: 'function' as const,
-          function: {
-            name: p.name,
-            arguments: p.arguments,
-          },
-        }))
+          .filter(
+            (p) =>
+              p.state === 'input-complete' ||
+              p.state === 'approval-responded' ||
+              p.output !== undefined, // Include if has output (client tool result)
+          )
+          .map((p) => ({
+            id: p.id,
+            type: 'function' as const,
+            function: {
+              name: p.name,
+              arguments: p.arguments,
+            },
+          }))
       : undefined
 
   // Create the main message

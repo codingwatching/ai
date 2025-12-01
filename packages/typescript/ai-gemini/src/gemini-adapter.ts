@@ -232,10 +232,10 @@ export class GeminiAdapter extends BaseAdapter<
             finishReason: mappedFinishReason as any,
             usage: chunk.usageMetadata
               ? {
-                promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
-                completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
-                totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
-              }
+                  promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
+                  completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
+                  totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
+                }
               : undefined,
           }
         }
@@ -397,10 +397,10 @@ export class GeminiAdapter extends BaseAdapter<
           finishReason: mappedFinishReason as any,
           usage: chunk.usageMetadata
             ? {
-              promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
-              completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
-              totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
-            }
+                promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
+                completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
+                totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
+              }
             : undefined,
         }
       }
@@ -443,7 +443,9 @@ export class GeminiAdapter extends BaseAdapter<
     }
   }
 
-  private formatMessages(messages: Array<ModelMessage>): GenerateContentParameters["contents"] {
+  private formatMessages(
+    messages: Array<ModelMessage>,
+  ): GenerateContentParameters['contents'] {
     return messages
       .filter((m) => m.role !== 'system') // Skip system messages
       .map((msg) => {
@@ -485,8 +487,7 @@ export class GeminiAdapter extends BaseAdapter<
 
         // Handle tool results (from tool role)
         if (msg.role === 'tool' && msg.toolCallId) {
-          const toolContent =
-            typeof msg.content === 'string' ? msg.content : ''
+          const toolContent = typeof msg.content === 'string' ? msg.content : ''
           parts.push({
             functionResponse: {
               name: msg.toolCallId, // Gemini uses function name here
