@@ -60,8 +60,8 @@ export type InferToolName<T> = T extends { name: infer N } ? N : never
  */
 export type InferToolInput<T> = T extends { inputSchema?: infer TInput }
   ? TInput extends z.ZodType
-    ? z.infer<TInput>
-    : any
+  ? z.infer<TInput>
+  : any
   : any
 
 /**
@@ -69,8 +69,8 @@ export type InferToolInput<T> = T extends { inputSchema?: infer TInput }
  */
 export type InferToolOutput<T> = T extends { outputSchema?: infer TOutput }
   ? TOutput extends z.ZodType
-    ? z.infer<TOutput>
-    : any
+  ? z.infer<TOutput>
+  : any
   : any
 
 /**
@@ -176,13 +176,7 @@ export function toolDefinition<
 ): ToolDefinition<TInput, TOutput, TName> {
   const definition: ToolDefinition<TInput, TOutput, TName> = {
     __toolSide: 'definition',
-    name: config.name,
-    description: config.description,
-    inputSchema: config.inputSchema,
-    outputSchema: config.outputSchema,
-    needsApproval: config.needsApproval,
-    metadata: config.metadata,
-
+    ...config,
     server(
       execute: (
         args: z.infer<TInput>,
@@ -190,12 +184,7 @@ export function toolDefinition<
     ): ServerTool<TInput, TOutput, TName> {
       return {
         __toolSide: 'server',
-        name: config.name,
-        description: config.description,
-        inputSchema: config.inputSchema,
-        outputSchema: config.outputSchema,
-        needsApproval: config.needsApproval,
-        metadata: config.metadata,
+        ...config,
         execute,
       }
     },
@@ -207,12 +196,7 @@ export function toolDefinition<
     ): ClientTool<TInput, TOutput, TName> {
       return {
         __toolSide: 'client',
-        name: config.name,
-        description: config.description,
-        inputSchema: config.inputSchema,
-        outputSchema: config.outputSchema,
-        needsApproval: config.needsApproval,
-        metadata: config.metadata,
+        ...config,
         execute,
       }
     },
