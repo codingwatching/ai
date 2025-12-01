@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { chat, maxIterations, toStreamResponse } from '@tanstack/ai'
+import { assertMessages, chat, maxIterations, toStreamResponse } from '@tanstack/ai'
 import { openai } from '@tanstack/ai-openai'
+import { gemini } from '@tanstack/ai-gemini'
 import {
   addToCartToolDef,
   addToWishListToolDef,
@@ -54,11 +55,18 @@ export const Route = createFileRoute('/api/tanchat')({
 
         const abortController = new AbortController()
 
-        const { messages } = await request.json()
+        const { messages: incomingMessages } = await request.json()
+
+        // Create adapter instance for type inference
+        const adapter = openai()
+
+        // Assert incoming messages are compatible with gpt-4o (text + image only)
+        // This enables proper type checking for any additional messages we add
+        const messages = assertMessages({ adapter, model: "gpt-4o" }, incomingMessages)
         try {
           const stream = chat({
-            adapter: openai(),
-            model: 'gpt-5',
+            adapter,
+            model: "gpt-5",
             tools: [
               getGuitars.server, // Server function tool
               recommendGuitarToolDef, // No server execute - client will handle
@@ -68,7 +76,30 @@ export const Route = createFileRoute('/api/tanchat')({
             ],
             systemPrompts: [SYSTEM_PROMPT],
             agentLoopStrategy: maxIterations(20),
-            messages,
+
+            // Now TypeScript will properly check that we only use text + image content
+            messages: [
+              ...messages,
+              // This would error at compile time if gpt-4o doesn't support the modality:
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'What do you see?',
+                  },
+
+
+                  {
+                    type: 'image',
+                    source: {
+                      type: 'url',
+                      value: 'https://example.com/image.jpg',
+                    },
+                  },
+                ],
+              },
+            ],
             abortController,
           })
 
