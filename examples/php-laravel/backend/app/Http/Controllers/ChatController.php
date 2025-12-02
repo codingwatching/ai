@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Tools\GetInventoryTool;
 use Illuminate\Http\Request;
-use TanStack\AI\StreamChunkConverter;
-use TanStack\AI\MessageFormatters;
+use TanStack\AI\AgentLoopStrategies;
+use TanStack\AI\ChatEngine;
 use TanStack\AI\SSEFormatter;
-use Anthropic\Client as AnthropicClient;
-use OpenAI\Factory;
+use TanStack\AI\Tool;
 
 class ChatController extends Controller
 {
     /**
-     * Handle chat streaming requests
+     * Handle chat streaming requests with agentic flow support
      */
     public function chat(Request $request)
     {
@@ -22,35 +22,52 @@ class ChatController extends Controller
         $data = $request->input('data', []);
         $provider = $data['provider'] ?? 'anthropic';
         $model = $data['model'] ?? ($provider === 'anthropic' ? 'claude-3-haiku-20240307' : 'gpt-4o');
+        
+        // Get tools from request
+        $toolsData = $request->input('tools', []);
+        $tools = $this->parseTools($toolsData);
+        
+        // Get agent loop strategy (optional)
+        $maxIterations = $data['maxIterations'] ?? 5;
+        $loopStrategy = AgentLoopStrategies::maxIterations($maxIterations);
+        
+        // Get system prompts (optional)
+        $systemPrompts = $data['systemPrompts'] ?? [];
 
         try {
             // Use stream() instead of eventStream() to avoid Laravel adding 'event:' lines
             // TanStack AI client expects only 'data:' lines (no event names)
-            return response()->stream(function () use ($provider, $model, $messages) {
+            return response()->stream(function () use ($provider, $model, $messages, $tools, $loopStrategy, $systemPrompts) {
                 // Disable output buffering for streaming
                 if (ob_get_level() > 0) {
                     ob_end_clean();
                 }
-                
-                $converter = new StreamChunkConverter(model: $model, provider: $provider);
 
                 try {
-                    if ($provider === 'anthropic') {
-                        foreach ($this->streamAnthropic($converter, $model, $messages) as $chunk) {
-                            echo $chunk;
-                            if (ob_get_level() > 0) {
-                                ob_flush();
-                            }
-                            flush();
+                    // Get API keys for ChatEngine
+                    $anthropicApiKey = config('services.anthropic.key');
+                    $openaiApiKey = config('services.openai.api_key');
+                    
+                    // Create ChatEngine instance
+                    $engine = new ChatEngine(
+                        provider: $provider,
+                        model: $model,
+                        messages: $messages,
+                        tools: $tools,
+                        loopStrategy: $loopStrategy,
+                        systemPrompts: $systemPrompts,
+                        anthropicApiKey: $anthropicApiKey,
+                        openaiApiKey: $openaiApiKey
+                    );
+
+                    // Stream chunks from the engine
+                    foreach ($engine->chat() as $chunk) {
+                        $chunkData = SSEFormatter::formatChunk($chunk);
+                        echo $chunkData;
+                        if (ob_get_level() > 0) {
+                            ob_flush();
                         }
-                    } else {
-                        foreach ($this->streamOpenAI($converter, $model, $messages) as $chunk) {
-                            echo $chunk;
-                            if (ob_get_level() > 0) {
-                                ob_flush();
-                            }
-                            flush();
-                        }
+                        flush();
                     }
 
                     // Send [DONE] marker
@@ -61,8 +78,22 @@ class ChatController extends Controller
                     }
                     flush();
                 } catch (\Throwable $e) {
+                    // Log error to console/error log
+                    error_log('ChatController streaming error: ' . $e->getMessage());
+                    error_log('File: ' . $e->getFile() . ':' . $e->getLine());
+                    error_log('Trace: ' . $e->getTraceAsString());
+                    
                     // Convert error to error chunk
-                    $errorChunk = $converter->convertError($e);
+                    $errorChunk = [
+                        'type' => 'error',
+                        'id' => 'error-' . time(),
+                        'model' => $model,
+                        'timestamp' => (int)(microtime(true) * 1000),
+                        'error' => [
+                            'message' => $e->getMessage(),
+                            'code' => $e->getCode(),
+                        ],
+                    ];
                     $errorData = SSEFormatter::formatChunk($errorChunk);
                     echo $errorData;
                     if (ob_get_level() > 0) {
@@ -96,68 +127,39 @@ class ChatController extends Controller
     }
 
     /**
-     * Stream from Anthropic API
+     * Parse tools from request data.
+     * Supports both Tool objects and tool definition arrays.
+     * 
+     * @param array $toolsData Tools data from request
+     * @return array<Tool> Array of Tool objects
      */
-    private function streamAnthropic(StreamChunkConverter $converter, string $model, array $messages): \Generator
+    private function parseTools(array $toolsData): array
     {
-        [$systemMessage, $anthropicMessages] = MessageFormatters::formatMessagesForAnthropic($messages);
-
-        $apiKey = config('services.anthropic.key');
-        if (!$apiKey) {
-            throw new \RuntimeException('ANTHROPIC_API_KEY is not configured');
+        $tools = [];
+        
+        // If tools array is empty, add default getInventory tool
+        if (empty($toolsData)) {
+            $tools[] = GetInventoryTool::create();
+            return $tools;
         }
-
-        $client = new AnthropicClient(apiKey: $apiKey);
-
-        $streamParams = [
-            'maxTokens' => 1024,
-            'messages' => $anthropicMessages,
-            'model' => $model,
-            'temperature' => 0.7,
-        ];
-
-        if ($systemMessage) {
-            $streamParams['system'] = $systemMessage;
-        }
-
-        $stream = $client->messages->createStream(...$streamParams);
-
-        foreach ($stream as $event) {
-            $chunks = $converter->convertEvent($event);
-
-            foreach ($chunks as $chunk) {
-                yield SSEFormatter::formatChunk($chunk);
+        
+        foreach ($toolsData as $toolData) {
+            if ($toolData instanceof Tool) {
+                $tools[] = $toolData;
+            } elseif (is_array($toolData)) {
+                // Check if it's a tool name string (like 'getInventory')
+                if (isset($toolData['name']) && $toolData['name'] === 'getInventory') {
+                    $tools[] = GetInventoryTool::create();
+                } else {
+                    // Convert array to Tool object
+                    $tools[] = Tool::fromArray($toolData);
+                }
+            } elseif (is_string($toolData) && $toolData === 'getInventory') {
+                // Simple string reference to built-in tool
+                $tools[] = GetInventoryTool::create();
             }
         }
-    }
-
-    /**
-     * Stream from OpenAI API
-     */
-    private function streamOpenAI(StreamChunkConverter $converter, string $model, array $messages): \Generator
-    {
-        $openaiMessages = MessageFormatters::formatMessagesForOpenAI($messages);
-
-        $apiKey = config('services.openai.api_key');
-        if (!$apiKey) {
-            throw new \RuntimeException('OPENAI_API_KEY is not configured');
-        }
-
-        $client = (new Factory())->withApiKey($apiKey)->make();
-
-        $stream = $client->chat()->createStreamed([
-            'model' => $model,
-            'messages' => $openaiMessages,
-            'max_tokens' => 1024,
-            'temperature' => 0.7,
-        ]);
-
-        foreach ($stream as $event) {
-            $chunks = $converter->convertEvent($event);
-
-            foreach ($chunks as $chunk) {
-                yield SSEFormatter::formatChunk($chunk);
-            }
-        }
+        
+        return $tools;
     }
 }
