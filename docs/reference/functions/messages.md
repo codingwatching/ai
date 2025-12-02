@@ -6,7 +6,7 @@ title: messages
 # Function: messages()
 
 ```ts
-function messages<TAdapter, TModel>(_options, msgs): TAdapter extends AIAdapter<any, any, any, any, any, ModelInputModalities> ? TModel extends keyof ModelInputModalities ? ModelInputModalities[TModel<TModel>] extends readonly Modality[] ? ConstrainedModelMessage<any[any]>[] : ModelMessage<
+function messages<TAdapter, TModel>(_options, msgs): TAdapter extends AIAdapter<any, any, any, any, any, ModelInputModalities, DefaultMessageMetadataByModality> ? TModel extends keyof ModelInputModalities ? ModelInputModalities[TModel<TModel>] extends readonly Modality[] ? ConstrainedModelMessage<any[any]>[] : ModelMessage<
   | string
   | ContentPart<unknown, unknown, unknown, unknown>[]
   | null>[] : ModelMessage<
@@ -30,7 +30,7 @@ combining typed messages with untyped data (like from request.json()).
 
 ### TAdapter
 
-`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `any`\>
+`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `any`, [`DefaultMessageMetadataByModality`](../interfaces/DefaultMessageMetadataByModality.md)\>
 
 ### TModel
 
@@ -50,7 +50,7 @@ combining typed messages with untyped data (like from request.json()).
 
 ### msgs
 
-`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `ModelInputModalities`\> ? `TModel` *extends* keyof `ModelInputModalities` ? `ModelInputModalities`\[`TModel`\<`TModel`\>\] *extends* readonly [`Modality`](../type-aliases/Modality.md)[] ? [`ConstrainedModelMessage`](../type-aliases/ConstrainedModelMessage.md)\<`any`\[`any`\]\>[] : [`ModelMessage`](../interfaces/ModelMessage.md)\<
+`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `ModelInputModalities`, [`DefaultMessageMetadataByModality`](../interfaces/DefaultMessageMetadataByModality.md)\> ? `TModel` *extends* keyof `ModelInputModalities` ? `ModelInputModalities`\[`TModel`\<`TModel`\>\] *extends* readonly [`Modality`](../type-aliases/Modality.md)[] ? [`ConstrainedModelMessage`](../type-aliases/ConstrainedModelMessage.md)\<`any`\[`any`\]\>[] : [`ModelMessage`](../interfaces/ModelMessage.md)\<
   \| `string`
   \| [`ContentPart`](../type-aliases/ContentPart.md)\<`unknown`, `unknown`, `unknown`, `unknown`\>[]
   \| `null`\>[] : [`ModelMessage`](../interfaces/ModelMessage.md)\<
@@ -63,7 +63,7 @@ combining typed messages with untyped data (like from request.json()).
 
 ## Returns
 
-`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `ModelInputModalities`\> ? `TModel` *extends* keyof `ModelInputModalities` ? `ModelInputModalities`\[`TModel`\<`TModel`\>\] *extends* readonly [`Modality`](../type-aliases/Modality.md)[] ? [`ConstrainedModelMessage`](../type-aliases/ConstrainedModelMessage.md)\<`any`\[`any`\]\>[] : [`ModelMessage`](../interfaces/ModelMessage.md)\<
+`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `ModelInputModalities`, [`DefaultMessageMetadataByModality`](../interfaces/DefaultMessageMetadataByModality.md)\> ? `TModel` *extends* keyof `ModelInputModalities` ? `ModelInputModalities`\[`TModel`\<`TModel`\>\] *extends* readonly [`Modality`](../type-aliases/Modality.md)[] ? [`ConstrainedModelMessage`](../type-aliases/ConstrainedModelMessage.md)\<`any`\[`any`\]\>[] : [`ModelMessage`](../interfaces/ModelMessage.md)\<
   \| `string`
   \| [`ContentPart`](../type-aliases/ContentPart.md)\<`unknown`, `unknown`, `unknown`, `unknown`\>[]
   \| `null`\>[] : [`ModelMessage`](../interfaces/ModelMessage.md)\<

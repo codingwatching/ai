@@ -9,7 +9,7 @@ title: ExtractModalitiesForModel
 type ExtractModalitiesForModel<TAdapter, TModel> = TAdapter extends AIAdapter<any, any, any, any, any, infer ModelInputModalities> ? TModel extends keyof ModelInputModalities ? ModelInputModalities[TModel] : ReadonlyArray<Modality> : ReadonlyArray<Modality>;
 ```
 
-Defined in: [types.ts:750](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L750)
+Defined in: [types.ts:807](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L807)
 
 Extract the supported input modalities for a specific model from an adapter.
 

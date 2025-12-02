@@ -3,9 +3,9 @@ id: AIAdapter
 title: AIAdapter
 ---
 
-# Interface: AIAdapter\<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName, TModelInputModalitiesByName\>
+# Interface: AIAdapter\<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName, TModelInputModalitiesByName, TMessageMetadataByModality\>
 
-Defined in: [types.ts:614](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L614)
+Defined in: [types.ts:626](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L626)
 
 AI adapter interface with support for endpoint-specific models and provider options.
 
@@ -16,6 +16,7 @@ Generic parameters:
 - TEmbeddingProviderOptions: Provider-specific options for embedding endpoint
 - TModelProviderOptionsByName: Map from model name to its specific provider options
 - TModelInputModalitiesByName: Map from model name to its supported input modalities
+- TMessageMetadataByModality: Map from modality type to adapter-specific metadata types
 
 ## Type Parameters
 
@@ -43,6 +44,10 @@ Generic parameters:
 
 `TModelInputModalitiesByName` *extends* `Record`\<`string`, `ReadonlyArray`\<[`Modality`](../type-aliases/Modality.md)\>\> = `Record`\<`string`, `ReadonlyArray`\<[`Modality`](../type-aliases/Modality.md)\>\>
 
+### TMessageMetadataByModality
+
+`TMessageMetadataByModality` *extends* `object` = [`DefaultMessageMetadataByModality`](./DefaultMessageMetadataByModality.md)
+
 ## Properties
 
 ### \_chatProviderOptions?
@@ -51,7 +56,7 @@ Generic parameters:
 optional _chatProviderOptions: TChatProviderOptions;
 ```
 
-Defined in: [types.ts:634](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L634)
+Defined in: [types.ts:652](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L652)
 
 ***
 
@@ -61,7 +66,20 @@ Defined in: [types.ts:634](https://github.com/TanStack/ai/blob/main/packages/typ
 optional _embeddingProviderOptions: TEmbeddingProviderOptions;
 ```
 
-Defined in: [types.ts:635](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L635)
+Defined in: [types.ts:653](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L653)
+
+***
+
+### \_messageMetadataByModality?
+
+```ts
+optional _messageMetadataByModality: TMessageMetadataByModality;
+```
+
+Defined in: [types.ts:670](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L670)
+
+Type-only map from modality type to adapter-specific metadata types.
+Used to provide type-safe autocomplete for metadata on content parts.
 
 ***
 
@@ -71,7 +89,7 @@ Defined in: [types.ts:635](https://github.com/TanStack/ai/blob/main/packages/typ
 optional _modelInputModalitiesByName: TModelInputModalitiesByName;
 ```
 
-Defined in: [types.ts:647](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L647)
+Defined in: [types.ts:665](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L665)
 
 Type-only map from model name to its supported input modalities.
 Used by the core AI types to narrow ContentPart types based on the selected model.
@@ -85,7 +103,7 @@ Must be provided by all adapters.
 _modelProviderOptionsByName: TModelProviderOptionsByName;
 ```
 
-Defined in: [types.ts:641](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L641)
+Defined in: [types.ts:659](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L659)
 
 Type-only map from model name to its specific provider options.
 Used by the core AI types to narrow providerOptions based on the selected model.
@@ -99,7 +117,7 @@ Must be provided by all adapters.
 optional _providerOptions: TChatProviderOptions;
 ```
 
-Defined in: [types.ts:633](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L633)
+Defined in: [types.ts:651](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L651)
 
 ***
 
@@ -109,7 +127,7 @@ Defined in: [types.ts:633](https://github.com/TanStack/ai/blob/main/packages/typ
 chatStream: (options) => AsyncIterable<StreamChunk>;
 ```
 
-Defined in: [types.ts:650](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L650)
+Defined in: [types.ts:673](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L673)
 
 #### Parameters
 
@@ -129,7 +147,7 @@ Defined in: [types.ts:650](https://github.com/TanStack/ai/blob/main/packages/typ
 createEmbeddings: (options) => Promise<EmbeddingResult>;
 ```
 
-Defined in: [types.ts:658](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L658)
+Defined in: [types.ts:681](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L681)
 
 #### Parameters
 
@@ -149,7 +167,7 @@ Defined in: [types.ts:658](https://github.com/TanStack/ai/blob/main/packages/typ
 optional embeddingModels: TEmbeddingModels;
 ```
 
-Defined in: [types.ts:630](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L630)
+Defined in: [types.ts:648](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L648)
 
 Models that support embeddings
 
@@ -161,7 +179,7 @@ Models that support embeddings
 models: TChatModels;
 ```
 
-Defined in: [types.ts:627](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L627)
+Defined in: [types.ts:645](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L645)
 
 Models that support chat/text completion
 
@@ -173,7 +191,7 @@ Models that support chat/text completion
 name: string;
 ```
 
-Defined in: [types.ts:625](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L625)
+Defined in: [types.ts:643](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L643)
 
 ***
 
@@ -183,7 +201,7 @@ Defined in: [types.ts:625](https://github.com/TanStack/ai/blob/main/packages/typ
 summarize: (options) => Promise<SummarizationResult>;
 ```
 
-Defined in: [types.ts:655](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L655)
+Defined in: [types.ts:678](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L678)
 
 #### Parameters
 

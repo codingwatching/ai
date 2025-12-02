@@ -19,7 +19,7 @@ Includes automatic tool execution loop
 
 ### TAdapter
 
-`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `any`\>
+`TAdapter` *extends* [`AIAdapter`](../interfaces/AIAdapter.md)\<`any`, `any`, `any`, `any`, `any`, `any`, [`DefaultMessageMetadataByModality`](../interfaces/DefaultMessageMetadataByModality.md)\>
 
 ### TModel
 

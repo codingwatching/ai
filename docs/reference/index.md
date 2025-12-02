@@ -23,6 +23,7 @@ title: "@tanstack/ai"
 - [ClientTool](./interfaces/ClientTool.md)
 - [ContentPartSource](./interfaces/ContentPartSource.md)
 - [ContentStreamChunk](./interfaces/ContentStreamChunk.md)
+- [DefaultMessageMetadataByModality](./interfaces/DefaultMessageMetadataByModality.md)
 - [DocumentPart](./interfaces/DocumentPart.md)
 - [DoneStreamChunk](./interfaces/DoneStreamChunk.md)
 - [EmbeddingOptions](./interfaces/EmbeddingOptions.md)
