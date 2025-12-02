@@ -1,12 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  assertMessages,
   chat,
   maxIterations,
   toStreamResponse,
 } from '@tanstack/ai'
 import { openai } from '@tanstack/ai-openai'
 import { gemini } from '@tanstack/ai-gemini'
+// import { ollama } from "@tanstack/ai-ollama";
+// import { anthropic } from '@tanstack/ai-anthropic'
+// import { gemini } from "@tanstack/ai-gemini";
 import {
   addToCartToolDef,
   addToWishListToolDef,
@@ -60,17 +62,12 @@ export const Route = createFileRoute('/api/tanchat')({
 
         const abortController = new AbortController()
 
-        const { messages: incomingMessages } = await request.json()
+        const { messages } = await request.json()
 
         // Create adapter instance for type inference
         const adapter = openai()
 
-        // Assert incoming messages are compatible with gpt-4o (text + image only)
-        // This enables proper type checking for any additional messages we add
-        const messages = assertMessages(
-          { adapter, model: 'gpt-4o' },
-          incomingMessages,
-        )
+
         try {
           const stream = chat({
             adapter,
@@ -86,27 +83,7 @@ export const Route = createFileRoute('/api/tanchat')({
             agentLoopStrategy: maxIterations(20),
 
             // Now TypeScript will properly check that we only use text + image content
-            messages: [
-              ...messages,
-              // This would error at compile time if gpt-4o doesn't support the modality:
-              {
-                role: 'user',
-                content: [
-                  {
-                    type: 'text',
-                    text: 'What do you see?',
-                  },
-
-                  {
-                    type: 'image',
-                    source: {
-                      type: 'url',
-                      value: 'https://example.com/image.jpg',
-                    },
-                  },
-                ],
-              },
-            ],
+            messages,
             abortController,
           })
 

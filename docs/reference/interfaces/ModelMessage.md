@@ -38,7 +38,7 @@ Defined in: [types.ts:175](https://github.com/TanStack/ai/blob/main/packages/typ
 ### role
 
 ```ts
-role: "system" | "user" | "assistant" | "tool";
+role: "user" | "assistant" | "tool";
 ```
 
 Defined in: [types.ts:173](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L173)

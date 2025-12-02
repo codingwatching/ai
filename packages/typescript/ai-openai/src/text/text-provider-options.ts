@@ -478,21 +478,7 @@ export function convertMessagesToInput(
       continue
     }
 
-    // Handle system messages
-    if (message.role === 'system') {
-      const systemContent = extractTextContent(message.content)
-      result.push({
-        type: 'message',
-        role: 'system',
-        content: [
-          {
-            type: 'input_text',
-            text: systemContent,
-          },
-        ],
-      })
-      continue
-    }
+
 
     // Handle user messages (default case) - support multimodal content
     const contentParts = normalizeContent(message.content)
