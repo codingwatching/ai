@@ -27,7 +27,11 @@ import type {
   ExternalTextProviderOptions,
   InternalTextProviderOptions,
 } from './text/text-provider-options'
-import type { OpenAIAudioMetadata, OpenAIImageMetadata } from './message-types'
+import type {
+  OpenAIAudioMetadata,
+  OpenAIImageMetadata,
+  OpenAIMessageMetadataByModality,
+} from './message-types'
 
 export interface OpenAIConfig {
   apiKey: string
@@ -58,7 +62,8 @@ export class OpenAI extends BaseAdapter<
   OpenAIProviderOptions,
   OpenAIEmbeddingProviderOptions,
   OpenAIChatModelProviderOptionsByName,
-  OpenAIModelInputModalitiesByName
+  OpenAIModelInputModalitiesByName,
+  OpenAIMessageMetadataByModality
 > {
   name = 'openai' as const
   models = OPENAI_CHAT_MODELS
@@ -74,6 +79,9 @@ export class OpenAI extends BaseAdapter<
   // Type-only map for model input modalities; used for multimodal content type constraints
   // @ts-ignore - We never assign this at runtime and it's only used for types
   _modelInputModalitiesByName?: OpenAIModelInputModalitiesByName
+  // Type-only map for message metadata types; used for type-safe metadata autocomplete
+  // @ts-ignore - We never assign this at runtime and it's only used for types
+  _messageMetadataByModality?: OpenAIMessageMetadataByModality
 
   constructor(config: OpenAIConfig) {
     super({})

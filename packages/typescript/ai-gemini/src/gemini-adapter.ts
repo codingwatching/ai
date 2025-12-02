@@ -27,6 +27,7 @@ import type {
   GeminiAudioMetadata,
   GeminiDocumentMetadata,
   GeminiImageMetadata,
+  GeminiMessageMetadataByModality,
   GeminiVideoMetadata,
 } from './message-types'
 
@@ -47,13 +48,15 @@ export class GeminiAdapter extends BaseAdapter<
   GeminiProviderOptions,
   Record<string, any>,
   GeminiChatModelProviderOptionsByName,
-  GeminiModelInputModalitiesByName
+  GeminiModelInputModalitiesByName,
+  GeminiMessageMetadataByModality
 > {
   name = 'gemini'
   models = GEMINI_MODELS
   embeddingModels = GEMINI_EMBEDDING_MODELS
   declare _modelProviderOptionsByName: GeminiChatModelProviderOptionsByName
   declare _modelInputModalitiesByName: GeminiModelInputModalitiesByName
+  declare _messageMetadataByModality: GeminiMessageMetadataByModality
   private client: GoogleGenAI
 
   constructor(config: GeminiAdapterConfig) {

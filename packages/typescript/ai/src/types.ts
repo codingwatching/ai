@@ -601,6 +601,17 @@ export interface EmbeddingResult {
 }
 
 /**
+ * Default metadata type for adapters that don't define custom metadata.
+ * Uses unknown for all modalities.
+ */
+export interface DefaultMessageMetadataByModality {
+  image: unknown
+  audio: unknown
+  video: unknown
+  document: unknown
+}
+
+/**
  * AI adapter interface with support for endpoint-specific models and provider options.
  *
  * Generic parameters:
@@ -610,6 +621,7 @@ export interface EmbeddingResult {
  * - TEmbeddingProviderOptions: Provider-specific options for embedding endpoint
  * - TModelProviderOptionsByName: Map from model name to its specific provider options
  * - TModelInputModalitiesByName: Map from model name to its supported input modalities
+ * - TMessageMetadataByModality: Map from modality type to adapter-specific metadata types
  */
 export interface AIAdapter<
   TChatModels extends ReadonlyArray<string> = ReadonlyArray<string>,
@@ -621,6 +633,12 @@ export interface AIAdapter<
     string,
     ReadonlyArray<Modality>
   > = Record<string, ReadonlyArray<Modality>>,
+  TMessageMetadataByModality extends {
+    image: unknown
+    audio: unknown
+    video: unknown
+    document: unknown
+  } = DefaultMessageMetadataByModality,
 > {
   name: string
   /** Models that support chat/text completion */
@@ -645,6 +663,11 @@ export interface AIAdapter<
    * Must be provided by all adapters.
    */
   _modelInputModalitiesByName?: TModelInputModalitiesByName
+  /**
+   * Type-only map from modality type to adapter-specific metadata types.
+   * Used to provide type-safe autocomplete for metadata on content parts.
+   */
+  _messageMetadataByModality?: TMessageMetadataByModality
 
   // Structured streaming with JSON chunks (supports tool calls and rich content)
   chatStream: (
@@ -667,7 +690,7 @@ export interface AIAdapterConfig {
 }
 
 export type ChatStreamOptionsUnion<
-  TAdapter extends AIAdapter<any, any, any, any, any, any>,
+  TAdapter extends AIAdapter<any, any, any, any, any, any, any>,
 > =
   TAdapter extends AIAdapter<
     infer Models,
@@ -675,7 +698,8 @@ export type ChatStreamOptionsUnion<
     any,
     any,
     infer ModelProviderOptions,
-    infer ModelInputModalities
+    infer ModelInputModalities,
+    infer MessageMetadata
   >
     ? Models[number] extends infer TModel
       ? TModel extends string
@@ -691,10 +715,26 @@ export type ChatStreamOptionsUnion<
             /**
              * Messages array with content constrained to the model's supported input modalities.
              * For example, if a model only supports ['text', 'image'], you cannot pass audio or video content.
+             * Metadata types are also constrained based on the adapter's metadata type definitions.
              */
             messages: TModel extends keyof ModelInputModalities
               ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
-                ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
+                ? MessageMetadata extends {
+                    image: infer TImageMeta
+                    audio: infer TAudioMeta
+                    video: infer TVideoMeta
+                    document: infer TDocumentMeta
+                  }
+                  ? Array<
+                      ConstrainedModelMessage<
+                        ModelInputModalities[TModel],
+                        TImageMeta,
+                        TAudioMeta,
+                        TVideoMeta,
+                        TDocumentMeta
+                      >
+                    >
+                  : Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
                 : Array<ModelMessage>
               : Array<ModelMessage>
           }
@@ -708,7 +748,7 @@ export type ChatStreamOptionsUnion<
  * this type takes a specific model and constrains messages accordingly.
  */
 export type ChatStreamOptionsForModel<
-  TAdapter extends AIAdapter<any, any, any, any, any, any>,
+  TAdapter extends AIAdapter<any, any, any, any, any, any, any>,
   TModel extends string,
 > =
   TAdapter extends AIAdapter<
@@ -717,7 +757,8 @@ export type ChatStreamOptionsForModel<
     any,
     any,
     infer ModelProviderOptions,
-    infer ModelInputModalities
+    infer ModelInputModalities,
+    infer MessageMetadata
   >
     ? Omit<
         ChatOptions,
@@ -731,10 +772,26 @@ export type ChatStreamOptionsForModel<
         /**
          * Messages array with content constrained to the model's supported input modalities.
          * For example, if a model only supports ['text', 'image'], you cannot pass audio or video content.
+         * Metadata types are also constrained based on the adapter's metadata type definitions.
          */
         messages: TModel extends keyof ModelInputModalities
           ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
-            ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
+            ? MessageMetadata extends {
+                image: infer TImageMeta
+                audio: infer TAudioMeta
+                video: infer TVideoMeta
+                document: infer TDocumentMeta
+              }
+              ? Array<
+                  ConstrainedModelMessage<
+                    ModelInputModalities[TModel],
+                    TImageMeta,
+                    TAudioMeta,
+                    TVideoMeta,
+                    TDocumentMeta
+                  >
+                >
+              : Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
             : Array<ModelMessage>
           : Array<ModelMessage>
       }

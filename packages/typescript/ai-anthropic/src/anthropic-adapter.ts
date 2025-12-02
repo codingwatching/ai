@@ -3,7 +3,10 @@ import { BaseAdapter } from '@tanstack/ai'
 import { ANTHROPIC_MODELS } from './model-meta'
 import { convertToolsToProviderFormat } from './tools/tool-converter'
 import { validateTextProviderOptions } from './text/text-provider-options'
-import type { AnthropicImageMetadata } from './message-types'
+import type {
+  AnthropicImageMetadata,
+  AnthropicMessageMetadataByModality,
+} from './message-types'
 import type {
   ChatOptions,
   ContentPart,
@@ -56,13 +59,15 @@ export class Anthropic extends BaseAdapter<
   AnthropicProviderOptions,
   Record<string, any>,
   AnthropicChatModelProviderOptionsByName,
-  AnthropicModelInputModalitiesByName
+  AnthropicModelInputModalitiesByName,
+  AnthropicMessageMetadataByModality
 > {
   name = 'anthropic' as const
   models = ANTHROPIC_MODELS
 
   declare _modelProviderOptionsByName: AnthropicChatModelProviderOptionsByName
   declare _modelInputModalitiesByName: AnthropicModelInputModalitiesByName
+  declare _messageMetadataByModality: AnthropicMessageMetadataByModality
 
   private client: Anthropic_SDK
 

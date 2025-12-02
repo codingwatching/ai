@@ -2,6 +2,7 @@ import type {
   AIAdapter,
   AIAdapterConfig,
   ChatOptions,
+  DefaultMessageMetadataByModality,
   EmbeddingOptions,
   EmbeddingResult,
   Modality,
@@ -20,6 +21,7 @@ import type {
  * - TEmbeddingProviderOptions: Provider-specific options for embedding endpoint
  * - TModelProviderOptionsByName: Provider-specific options for model by name
  * - TModelInputModalitiesByName: Map from model name to its supported input modalities
+ * - TMessageMetadataByModality: Map from modality type to adapter-specific metadata types
  */
 export abstract class BaseAdapter<
   TChatModels extends ReadonlyArray<string> = ReadonlyArray<string>,
@@ -31,6 +33,12 @@ export abstract class BaseAdapter<
     string,
     ReadonlyArray<Modality>
   > = Record<string, ReadonlyArray<Modality>>,
+  TMessageMetadataByModality extends {
+    image: unknown
+    audio: unknown
+    video: unknown
+    document: unknown
+  } = DefaultMessageMetadataByModality,
 > implements
     AIAdapter<
       TChatModels,
@@ -38,7 +46,8 @@ export abstract class BaseAdapter<
       TChatProviderOptions,
       TEmbeddingProviderOptions,
       TModelProviderOptionsByName,
-      TModelInputModalitiesByName
+      TModelInputModalitiesByName,
+      TMessageMetadataByModality
     >
 {
   abstract name: string
@@ -54,6 +63,8 @@ export abstract class BaseAdapter<
   _modelProviderOptionsByName!: TModelProviderOptionsByName
   // Type-only map for model input modalities; concrete adapters should override this
   _modelInputModalitiesByName?: TModelInputModalitiesByName
+  // Type-only map for message metadata types; concrete adapters should override this
+  _messageMetadataByModality?: TMessageMetadataByModality
 
   constructor(config: AIAdapterConfig = {}) {
     this.config = config
