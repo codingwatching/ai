@@ -29,12 +29,11 @@ export interface OpenAIImageMetadata {
  */
 export interface OpenAIAudioMetadata {
   /**
-   * The format of the audio data.
-   * Required for audio input processing.
-   *
-   * @see https://platform.openai.com/docs/guides/audio
+   * The format of the audio.
+   * Supported formats: mp3, wav, flac, etc.
+   * @default 'mp3'
    */
-  format?: 'wav' | 'mp3' | 'flac' | 'webm' | 'mp4' | 'mpeg' | 'mpga' | 'ogg'
+  format?: 'mp3' | 'wav' | 'flac' | 'ogg' | 'webm' | 'aac'
 }
 
 /**
@@ -42,10 +41,6 @@ export interface OpenAIAudioMetadata {
  * Note: Video support in OpenAI is limited; check current API capabilities.
  */
 export interface OpenAIVideoMetadata {
-  /**
-   * The format of the video data.
-   */
-  format?: 'mp4' | 'webm' | 'mpeg' | 'mov'
 }
 
 /**
@@ -53,10 +48,6 @@ export interface OpenAIVideoMetadata {
  * Note: Direct document support may vary; PDFs often need to be converted to images.
  */
 export interface OpenAIDocumentMetadata {
-  /**
-   * The MIME type of the document.
-   */
-  mediaType?: 'application/pdf'
 }
 
 /**

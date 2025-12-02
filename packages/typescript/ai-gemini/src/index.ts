@@ -1,6 +1,9 @@
 export { GeminiAdapter, createGemini, gemini } from './gemini-adapter'
 export type { GeminiAdapterConfig } from './gemini-adapter'
-export type { GeminiChatModelProviderOptionsByName } from './model-meta'
+export type {
+  GeminiChatModelProviderOptionsByName,
+  GeminiModelInputModalitiesByName,
+} from './model-meta'
 export type {
   GeminiStructuredOutputOptions,
   GeminiThinkingOptions,

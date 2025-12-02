@@ -1,5 +1,8 @@
 import { describe, it, expectTypeOf } from 'vitest'
-import type { AnthropicChatModelProviderOptionsByName } from '../src/model-meta'
+import type {
+  AnthropicChatModelProviderOptionsByName,
+  AnthropicModelInputModalitiesByName,
+} from '../src/model-meta'
 import type {
   AnthropicContainerOptions,
   AnthropicContextManagementOptions,
@@ -10,6 +13,14 @@ import type {
   AnthropicToolChoiceOptions,
   AnthropicSamplingOptions,
 } from '../src/text/text-provider-options'
+import type {
+  AudioPart,
+  ConstrainedModelMessage,
+  DocumentPart,
+  ImagePart,
+  TextPart,
+  VideoPart,
+} from '@tanstack/ai'
 
 /**
  * Type assertion tests for Anthropic model provider options.
@@ -461,6 +472,173 @@ describe('Anthropic Model Provider Options Type Assertions', () => {
       expectTypeOf<
         AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
       >().toExtend<BaseOptions>()
+    })
+  })
+})
+
+/**
+ * Anthropic Model Input Modality Type Assertions
+ *
+ * These tests verify that ConstrainedModelMessage correctly restricts
+ * content parts based on each Anthropic model's supported input modalities.
+ *
+ * All Claude models support: text, image, document
+ * No Claude models support: audio, video
+ */
+describe('Anthropic Model Input Modality Type Assertions', () => {
+  // Helper type for creating a user message with specific content
+  type MessageWithContent<T> = { role: 'user'; content: Array<T> }
+
+  describe('Claude Opus 4.5 (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName["claude-opus-4-5-20250514"]
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude Sonnet 4.5 (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName["claude-sonnet-4-5-20250514"]
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude Haiku 4.5 (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName["claude-haiku-4-5-20250514"]
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude Opus 4.1 (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName["claude-opus-4-1-20250414"]
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude Sonnet 4 (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName['claude-sonnet-4-20250514']
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude 3.7 Sonnet (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName['claude-3-7-sonnet-20250219']
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude Opus 4 (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName['claude-opus-4-20250514']
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude 3.5 Haiku (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName['claude-3-5-haiku-20241022']
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
+    })
+  })
+
+  describe('Claude 3 Haiku (text + image + document)', () => {
+    type Modalities =
+      AnthropicModelInputModalitiesByName['claude-3-haiku-20240307']
+    type Message = ConstrainedModelMessage<Modalities>
+
+    it('should allow TextPart, ImagePart, and DocumentPart', () => {
+      expectTypeOf<MessageWithContent<TextPart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<Message>()
+      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<Message>()
+    })
+
+    it('should NOT allow AudioPart or VideoPart', () => {
+      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<Message>()
+      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<Message>()
     })
   })
 })

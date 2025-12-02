@@ -4,7 +4,10 @@ export {
   anthropic,
   type AnthropicConfig,
 } from './anthropic-adapter'
-export type { AnthropicChatModelProviderOptionsByName } from './model-meta'
+export type {
+  AnthropicChatModelProviderOptionsByName,
+  AnthropicModelInputModalitiesByName,
+} from './model-meta'
 export type {
   AnthropicImageMetadata,
   AnthropicDocumentMetadata,

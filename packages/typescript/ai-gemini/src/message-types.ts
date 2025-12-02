@@ -25,7 +25,6 @@ export type GeminiImageMimeType =
 export type GeminiAudioMimeType =
   | 'audio/wav'
   | 'audio/mp3'
-  | 'audio/mpeg'
   | 'audio/aiff'
   | 'audio/aac'
   | 'audio/ogg'

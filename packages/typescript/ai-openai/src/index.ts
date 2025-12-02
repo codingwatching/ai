@@ -4,7 +4,10 @@ export {
   openai,
   type OpenAIConfig,
 } from './openai-adapter'
-export type { OpenAIChatModelProviderOptionsByName } from './model-meta'
+export type {
+  OpenAIChatModelProviderOptionsByName,
+  OpenAIModelInputModalitiesByName,
+} from './model-meta'
 export type {
   OpenAIImageMetadata,
   OpenAIAudioMetadata,
