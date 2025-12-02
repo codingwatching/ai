@@ -18,7 +18,11 @@ import type {
   GeminiModelInputModalitiesByName,
 } from './model-meta'
 import type { ExternalTextProviderOptions } from './text/text-provider-options'
-import type { GenerateContentParameters, GenerateContentResponse, Part } from '@google/genai'
+import type {
+  GenerateContentParameters,
+  GenerateContentResponse,
+  Part,
+} from '@google/genai'
 
 export interface GeminiAdapterConfig extends AIAdapterConfig {
   apiKey: string
@@ -355,10 +359,10 @@ export class GeminiAdapter extends BaseAdapter<
           finishReason: toolCallMap.size > 0 ? 'tool_calls' : 'stop',
           usage: chunk.usageMetadata
             ? {
-              promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
-              completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
-              totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
-            }
+                promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
+                completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
+                totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
+              }
             : undefined,
         }
       }
@@ -404,63 +408,59 @@ export class GeminiAdapter extends BaseAdapter<
   private formatMessages(
     messages: Array<ModelMessage>,
   ): GenerateContentParameters['contents'] {
-    return messages
-      .map((msg) => {
-        const role: 'user' | 'model' =
-          msg.role === 'assistant' ? 'model' : 'user'
-        const parts: Array<Part> = []
+    return messages.map((msg) => {
+      const role: 'user' | 'model' = msg.role === 'assistant' ? 'model' : 'user'
+      const parts: Array<Part> = []
 
-        // Handle multimodal content (array of ContentPart)
-        if (Array.isArray(msg.content)) {
-          for (const contentPart of msg.content) {
-            parts.push(this.convertContentPartToGemini(contentPart))
-          }
-        } else if (msg.content) {
-          // Handle string content (backward compatibility)
-          parts.push({ text: msg.content })
+      // Handle multimodal content (array of ContentPart)
+      if (Array.isArray(msg.content)) {
+        for (const contentPart of msg.content) {
+          parts.push(this.convertContentPartToGemini(contentPart))
         }
+      } else if (msg.content) {
+        // Handle string content (backward compatibility)
+        parts.push({ text: msg.content })
+      }
 
-        // Handle tool calls (from assistant)
-        if (msg.role === 'assistant' && msg.toolCalls?.length) {
-          for (const toolCall of msg.toolCalls) {
-            let parsedArgs: Record<string, unknown> = {}
-            try {
-              parsedArgs = toolCall.function.arguments
-                ? JSON.parse(toolCall.function.arguments)
-                : {}
-            } catch {
-              // If JSON parsing fails, wrap the raw arguments in an object
-              parsedArgs = { _raw: toolCall.function.arguments }
-            }
-
-            parts.push({
-              functionCall: {
-                name: toolCall.function.name,
-                args: parsedArgs,
-              },
-            })
+      // Handle tool calls (from assistant)
+      if (msg.role === 'assistant' && msg.toolCalls?.length) {
+        for (const toolCall of msg.toolCalls) {
+          let parsedArgs: Record<string, unknown> = {}
+          try {
+            parsedArgs = toolCall.function.arguments
+              ? JSON.parse(toolCall.function.arguments)
+              : {}
+          } catch {
+            // If JSON parsing fails, wrap the raw arguments in an object
+            parsedArgs = { _raw: toolCall.function.arguments }
           }
 
-
-        }
-
-        // Handle tool results (from tool role)
-        if (msg.role === 'tool' && msg.toolCallId) {
           parts.push({
-            functionResponse: {
-              name: msg.toolCallId, // Gemini uses function name here
-              response: {
-                content: msg.content || '',
-              },
+            functionCall: {
+              name: toolCall.function.name,
+              args: parsedArgs,
             },
           })
         }
+      }
 
-        return {
-          role,
-          parts: parts.length > 0 ? parts : [{ text: '' }],
-        }
-      })
+      // Handle tool results (from tool role)
+      if (msg.role === 'tool' && msg.toolCallId) {
+        parts.push({
+          functionResponse: {
+            name: msg.toolCallId, // Gemini uses function name here
+            response: {
+              content: msg.content || '',
+            },
+          },
+        })
+      }
+
+      return {
+        role,
+        parts: parts.length > 0 ? parts : [{ text: '' }],
+      }
+    })
   }
 
   /**

@@ -1,9 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  chat,
-  maxIterations,
-  toStreamResponse,
-} from '@tanstack/ai'
+import { chat, maxIterations, toStreamResponse } from '@tanstack/ai'
 import { openai } from '@tanstack/ai-openai'
 import { gemini } from '@tanstack/ai-gemini'
 // import { ollama } from "@tanstack/ai-ollama";
@@ -66,7 +62,6 @@ export const Route = createFileRoute('/api/tanchat')({
 
         // Create adapter instance for type inference
         const adapter = openai()
-
 
         try {
           const stream = chat({

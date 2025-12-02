@@ -67,13 +67,13 @@ export class ChatClient {
     }
 
     this.callbacks = {
-      onResponse: options.onResponse || (() => { }),
-      onChunk: options.onChunk || (() => { }),
-      onFinish: options.onFinish || (() => { }),
-      onError: options.onError || (() => { }),
-      onMessagesChange: options.onMessagesChange || (() => { }),
-      onLoadingChange: options.onLoadingChange || (() => { }),
-      onErrorChange: options.onErrorChange || (() => { }),
+      onResponse: options.onResponse || (() => {}),
+      onChunk: options.onChunk || (() => {}),
+      onFinish: options.onFinish || (() => {}),
+      onError: options.onError || (() => {}),
+      onMessagesChange: options.onMessagesChange || (() => {}),
+      onLoadingChange: options.onLoadingChange || (() => {}),
+      onErrorChange: options.onErrorChange || (() => {}),
     }
 
     this.events.clientCreated(this.messages.length)

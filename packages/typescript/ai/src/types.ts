@@ -155,20 +155,20 @@ export type ConstrainedContent<
   | string
   | null
   | Array<
-    ContentPartForModalities<
-      ModalitiesArrayToUnion<TModalities>,
-      TImageMeta,
-      TAudioMeta,
-      TVideoMeta,
-      TDocumentMeta
+      ContentPartForModalities<
+        ModalitiesArrayToUnion<TModalities>,
+        TImageMeta,
+        TAudioMeta,
+        TVideoMeta,
+        TDocumentMeta
+      >
     >
-  >
 
 export interface ModelMessage<
   TContent extends string | null | Array<ContentPart> =
-  | string
-  | null
-  | Array<ContentPart>,
+    | string
+    | null
+    | Array<ContentPart>,
 > {
   role: 'user' | 'assistant' | 'tool'
   content: TContent
@@ -677,30 +677,30 @@ export type ChatStreamOptionsUnion<
     infer ModelProviderOptions,
     infer ModelInputModalities
   >
-  ? Models[number] extends infer TModel
-  ? TModel extends string
-  ? Omit<
-    ChatOptions,
-    'model' | 'providerOptions' | 'responseFormat' | 'messages'
-  > & {
-    adapter: TAdapter
-    model: TModel
-    providerOptions?: TModel extends keyof ModelProviderOptions
-    ? ModelProviderOptions[TModel]
+    ? Models[number] extends infer TModel
+      ? TModel extends string
+        ? Omit<
+            ChatOptions,
+            'model' | 'providerOptions' | 'responseFormat' | 'messages'
+          > & {
+            adapter: TAdapter
+            model: TModel
+            providerOptions?: TModel extends keyof ModelProviderOptions
+              ? ModelProviderOptions[TModel]
+              : never
+            /**
+             * Messages array with content constrained to the model's supported input modalities.
+             * For example, if a model only supports ['text', 'image'], you cannot pass audio or video content.
+             */
+            messages: TModel extends keyof ModelInputModalities
+              ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
+                ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
+                : Array<ModelMessage>
+              : Array<ModelMessage>
+          }
+        : never
+      : never
     : never
-    /**
-     * Messages array with content constrained to the model's supported input modalities.
-     * For example, if a model only supports ['text', 'image'], you cannot pass audio or video content.
-     */
-    messages: TModel extends keyof ModelInputModalities
-    ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
-    ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
-    : Array<ModelMessage>
-    : Array<ModelMessage>
-  }
-  : never
-  : never
-  : never
 
 /**
  * Chat options constrained by a specific model's capabilities.
@@ -719,26 +719,26 @@ export type ChatStreamOptionsForModel<
     infer ModelProviderOptions,
     infer ModelInputModalities
   >
-  ? Omit<
-    ChatOptions,
-    'model' | 'providerOptions' | 'responseFormat' | 'messages'
-  > & {
-    adapter: TAdapter
-    model: TModel
-    providerOptions?: TModel extends keyof ModelProviderOptions
-    ? ModelProviderOptions[TModel]
+    ? Omit<
+        ChatOptions,
+        'model' | 'providerOptions' | 'responseFormat' | 'messages'
+      > & {
+        adapter: TAdapter
+        model: TModel
+        providerOptions?: TModel extends keyof ModelProviderOptions
+          ? ModelProviderOptions[TModel]
+          : never
+        /**
+         * Messages array with content constrained to the model's supported input modalities.
+         * For example, if a model only supports ['text', 'image'], you cannot pass audio or video content.
+         */
+        messages: TModel extends keyof ModelInputModalities
+          ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
+            ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
+            : Array<ModelMessage>
+          : Array<ModelMessage>
+      }
     : never
-    /**
-     * Messages array with content constrained to the model's supported input modalities.
-     * For example, if a model only supports ['text', 'image'], you cannot pass audio or video content.
-     */
-    messages: TModel extends keyof ModelInputModalities
-    ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
-    ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
-    : Array<ModelMessage>
-    : Array<ModelMessage>
-  }
-  : never
 
 // Extract types from adapter (updated to 6 generics)
 export type ExtractModelsFromAdapter<T> =
@@ -759,7 +759,7 @@ export type ExtractModalitiesForModel<
     any,
     infer ModelInputModalities
   >
-  ? TModel extends keyof ModelInputModalities
-  ? ModelInputModalities[TModel]
-  : ReadonlyArray<Modality>
-  : ReadonlyArray<Modality>
+    ? TModel extends keyof ModelInputModalities
+      ? ModelInputModalities[TModel]
+      : ReadonlyArray<Modality>
+    : ReadonlyArray<Modality>

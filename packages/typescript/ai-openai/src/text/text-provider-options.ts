@@ -478,8 +478,6 @@ export function convertMessagesToInput(
       continue
     }
 
-
-
     // Handle user messages (default case) - support multimodal content
     const contentParts = normalizeContent(message.content)
     const openAIContent: Array<OpenAIInputContentPart> = []
