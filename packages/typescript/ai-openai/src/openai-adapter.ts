@@ -1,9 +1,6 @@
 import OpenAI_SDK from 'openai'
 import { BaseAdapter } from '@tanstack/ai'
-import {
-  OPENAI_CHAT_MODELS,
-  OPENAI_EMBEDDING_MODELS,
-} from './model-meta'
+import { OPENAI_CHAT_MODELS, OPENAI_EMBEDDING_MODELS } from './model-meta'
 import {
   convertContentPartToOpenAI,
   extractTextContent,
@@ -424,14 +421,14 @@ export class OpenAI extends BaseAdapter<
   private mapChatOptionsToOpenAI(options: ChatOptions) {
     const providerOptions = options.providerOptions as
       | Omit<
-        InternalTextProviderOptions,
-        | 'max_output_tokens'
-        | 'tools'
-        | 'metadata'
-        | 'temperature'
-        | 'input'
-        | 'top_p'
-      >
+          InternalTextProviderOptions,
+          | 'max_output_tokens'
+          | 'tools'
+          | 'metadata'
+          | 'temperature'
+          | 'input'
+          | 'top_p'
+        >
       | undefined
     const input = this.convertMessagesToInput(options.messages)
     if (providerOptions) {
@@ -517,8 +514,6 @@ export class OpenAI extends BaseAdapter<
         continue
       }
 
-
-
       // Handle user messages (default case) - support multimodal content
       const contentParts = normalizeContent(message.content)
       const openAIContent: Array<Responses.ResponseInputContent> = []
@@ -526,7 +521,12 @@ export class OpenAI extends BaseAdapter<
       for (const part of contentParts) {
         openAIContent.push(
           convertContentPartToOpenAI(
-            part as ContentPart<OpenAIImageMetadata, OpenAIAudioMetadata, unknown, unknown>,
+            part as ContentPart<
+              OpenAIImageMetadata,
+              OpenAIAudioMetadata,
+              unknown,
+              unknown
+            >,
           ),
         )
       }

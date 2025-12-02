@@ -491,7 +491,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Opus 4.5 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName["claude-opus-4-5-20250514"]
+      AnthropicModelInputModalitiesByName['claude-opus-4-5-20250514']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -508,7 +508,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Sonnet 4.5 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName["claude-sonnet-4-5-20250514"]
+      AnthropicModelInputModalitiesByName['claude-sonnet-4-5-20250514']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -525,7 +525,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Haiku 4.5 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName["claude-haiku-4-5-20250514"]
+      AnthropicModelInputModalitiesByName['claude-haiku-4-5-20250514']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -542,7 +542,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Opus 4.1 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName["claude-opus-4-1-20250414"]
+      AnthropicModelInputModalitiesByName['claude-opus-4-1-20250414']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {

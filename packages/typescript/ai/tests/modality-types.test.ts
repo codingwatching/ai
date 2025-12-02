@@ -46,7 +46,9 @@ describe('Multimodal Type Constraints', () => {
     })
 
     it('should allow TextPart, ImagePart, and AudioPart for text|image|audio modality', () => {
-      type TextImageAudioContent = ContentPartForModalities<'text' | 'image' | 'audio'>
+      type TextImageAudioContent = ContentPartForModalities<
+        'text' | 'image' | 'audio'
+      >
 
       expectTypeOf<TextPart>().toExtend<TextImageAudioContent>()
       expectTypeOf<ImagePart>().toExtend<TextImageAudioContent>()
@@ -74,11 +76,17 @@ describe('Multimodal Type Constraints', () => {
     type TextOnlyMessage = ConstrainedModelMessage<readonly ['text']>
 
     it('should allow string content', () => {
-      expectTypeOf<{ role: 'user'; content: string }>().toExtend<TextOnlyMessage>()
+      expectTypeOf<{
+        role: 'user'
+        content: string
+      }>().toExtend<TextOnlyMessage>()
     })
 
     it('should allow null content', () => {
-      expectTypeOf<{ role: 'assistant'; content: null }>().toExtend<TextOnlyMessage>()
+      expectTypeOf<{
+        role: 'assistant'
+        content: null
+      }>().toExtend<TextOnlyMessage>()
     })
 
     it('should allow TextPart array', () => {
@@ -86,19 +94,27 @@ describe('Multimodal Type Constraints', () => {
     })
 
     it('should NOT allow ImagePart for text-only models', () => {
-      expectTypeOf<MessageWithContent<ImagePart>>().not.toExtend<TextOnlyMessage>()
+      expectTypeOf<
+        MessageWithContent<ImagePart>
+      >().not.toExtend<TextOnlyMessage>()
     })
 
     it('should NOT allow AudioPart for text-only models', () => {
-      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<TextOnlyMessage>()
+      expectTypeOf<
+        MessageWithContent<AudioPart>
+      >().not.toExtend<TextOnlyMessage>()
     })
 
     it('should NOT allow VideoPart for text-only models', () => {
-      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<TextOnlyMessage>()
+      expectTypeOf<
+        MessageWithContent<VideoPart>
+      >().not.toExtend<TextOnlyMessage>()
     })
 
     it('should NOT allow DocumentPart for text-only models', () => {
-      expectTypeOf<MessageWithContent<DocumentPart>>().not.toExtend<TextOnlyMessage>()
+      expectTypeOf<
+        MessageWithContent<DocumentPart>
+      >().not.toExtend<TextOnlyMessage>()
     })
   })
 
@@ -114,24 +130,34 @@ describe('Multimodal Type Constraints', () => {
     })
 
     it('should allow mixed TextPart and ImagePart', () => {
-      expectTypeOf<MessageWithContent<TextPart | ImagePart>>().toExtend<TextImageMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart | ImagePart>
+      >().toExtend<TextImageMessage>()
     })
 
     it('should NOT allow AudioPart for text+image models', () => {
-      expectTypeOf<MessageWithContent<AudioPart>>().not.toExtend<TextImageMessage>()
+      expectTypeOf<
+        MessageWithContent<AudioPart>
+      >().not.toExtend<TextImageMessage>()
     })
 
     it('should NOT allow VideoPart for text+image models', () => {
-      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<TextImageMessage>()
+      expectTypeOf<
+        MessageWithContent<VideoPart>
+      >().not.toExtend<TextImageMessage>()
     })
 
     it('should NOT allow DocumentPart for text+image models', () => {
-      expectTypeOf<MessageWithContent<DocumentPart>>().not.toExtend<TextImageMessage>()
+      expectTypeOf<
+        MessageWithContent<DocumentPart>
+      >().not.toExtend<TextImageMessage>()
     })
 
     it('should NOT allow mixed valid and invalid content parts', () => {
       // Array containing TextPart and VideoPart should NOT extend TextImageMessage
-      expectTypeOf<MessageWithContent<TextPart | VideoPart>>().not.toExtend<TextImageMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart | VideoPart>
+      >().not.toExtend<TextImageMessage>()
     })
   })
 
@@ -147,82 +173,148 @@ describe('Multimodal Type Constraints', () => {
     })
 
     it('should NOT allow ImagePart for text+audio models', () => {
-      expectTypeOf<MessageWithContent<ImagePart>>().not.toExtend<TextAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<ImagePart>
+      >().not.toExtend<TextAudioMessage>()
     })
 
     it('should NOT allow VideoPart for text+audio models', () => {
-      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<TextAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<VideoPart>
+      >().not.toExtend<TextAudioMessage>()
     })
   })
 
   describe('ConstrainedModelMessage for text+image+audio models', () => {
-    type TextImageAudioMessage = ConstrainedModelMessage<readonly ['text', 'image', 'audio']>
+    type TextImageAudioMessage = ConstrainedModelMessage<
+      readonly ['text', 'image', 'audio']
+    >
 
     it('should allow TextPart, ImagePart, and AudioPart', () => {
-      expectTypeOf<MessageWithContent<TextPart>>().toExtend<TextImageAudioMessage>()
-      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<TextImageAudioMessage>()
-      expectTypeOf<MessageWithContent<AudioPart>>().toExtend<TextImageAudioMessage>()
-      expectTypeOf<MessageWithContent<TextPart | ImagePart | AudioPart>>().toExtend<TextImageAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart>
+      >().toExtend<TextImageAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<ImagePart>
+      >().toExtend<TextImageAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<AudioPart>
+      >().toExtend<TextImageAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart | ImagePart | AudioPart>
+      >().toExtend<TextImageAudioMessage>()
     })
 
     it('should NOT allow VideoPart for text+image+audio models', () => {
-      expectTypeOf<MessageWithContent<VideoPart>>().not.toExtend<TextImageAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<VideoPart>
+      >().not.toExtend<TextImageAudioMessage>()
     })
 
     it('should NOT allow DocumentPart for text+image+audio models', () => {
-      expectTypeOf<MessageWithContent<DocumentPart>>().not.toExtend<TextImageAudioMessage>()
+      expectTypeOf<
+        MessageWithContent<DocumentPart>
+      >().not.toExtend<TextImageAudioMessage>()
     })
   })
 
   describe('ConstrainedModelMessage for text+image+audio+video models', () => {
-    type TextImageAudioVideoMessage = ConstrainedModelMessage<readonly ['text', 'image', 'audio', 'video']>
+    type TextImageAudioVideoMessage = ConstrainedModelMessage<
+      readonly ['text', 'image', 'audio', 'video']
+    >
 
     it('should allow TextPart, ImagePart, AudioPart, and VideoPart', () => {
-      expectTypeOf<MessageWithContent<TextPart>>().toExtend<TextImageAudioVideoMessage>()
-      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<TextImageAudioVideoMessage>()
-      expectTypeOf<MessageWithContent<AudioPart>>().toExtend<TextImageAudioVideoMessage>()
-      expectTypeOf<MessageWithContent<VideoPart>>().toExtend<TextImageAudioVideoMessage>()
-      expectTypeOf<MessageWithContent<TextPart | ImagePart | AudioPart | VideoPart>>().toExtend<TextImageAudioVideoMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart>
+      >().toExtend<TextImageAudioVideoMessage>()
+      expectTypeOf<
+        MessageWithContent<ImagePart>
+      >().toExtend<TextImageAudioVideoMessage>()
+      expectTypeOf<
+        MessageWithContent<AudioPart>
+      >().toExtend<TextImageAudioVideoMessage>()
+      expectTypeOf<
+        MessageWithContent<VideoPart>
+      >().toExtend<TextImageAudioVideoMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart | ImagePart | AudioPart | VideoPart>
+      >().toExtend<TextImageAudioVideoMessage>()
     })
 
     it('should NOT allow DocumentPart for text+image+audio+video models', () => {
-      expectTypeOf<MessageWithContent<DocumentPart>>().not.toExtend<TextImageAudioVideoMessage>()
+      expectTypeOf<
+        MessageWithContent<DocumentPart>
+      >().not.toExtend<TextImageAudioVideoMessage>()
     })
   })
 
   describe('ConstrainedModelMessage for full multimodal models', () => {
-    type FullMultimodalMessage = ConstrainedModelMessage<readonly ['text', 'image', 'audio', 'video', 'document']>
+    type FullMultimodalMessage = ConstrainedModelMessage<
+      readonly ['text', 'image', 'audio', 'video', 'document']
+    >
 
     it('should allow all content types', () => {
-      expectTypeOf<MessageWithContent<TextPart>>().toExtend<FullMultimodalMessage>()
-      expectTypeOf<MessageWithContent<ImagePart>>().toExtend<FullMultimodalMessage>()
-      expectTypeOf<MessageWithContent<AudioPart>>().toExtend<FullMultimodalMessage>()
-      expectTypeOf<MessageWithContent<VideoPart>>().toExtend<FullMultimodalMessage>()
-      expectTypeOf<MessageWithContent<DocumentPart>>().toExtend<FullMultimodalMessage>()
+      expectTypeOf<
+        MessageWithContent<TextPart>
+      >().toExtend<FullMultimodalMessage>()
+      expectTypeOf<
+        MessageWithContent<ImagePart>
+      >().toExtend<FullMultimodalMessage>()
+      expectTypeOf<
+        MessageWithContent<AudioPart>
+      >().toExtend<FullMultimodalMessage>()
+      expectTypeOf<
+        MessageWithContent<VideoPart>
+      >().toExtend<FullMultimodalMessage>()
+      expectTypeOf<
+        MessageWithContent<DocumentPart>
+      >().toExtend<FullMultimodalMessage>()
     })
 
     it('should allow any combination of content types', () => {
-      expectTypeOf<MessageWithContent<TextPart | ImagePart | AudioPart | VideoPart | DocumentPart>>().toExtend<FullMultimodalMessage>()
+      expectTypeOf<
+        MessageWithContent<
+          TextPart | ImagePart | AudioPart | VideoPart | DocumentPart
+        >
+      >().toExtend<FullMultimodalMessage>()
     })
   })
 
   describe('String and null content', () => {
     it('should always allow string content regardless of modalities', () => {
       type TextOnlyMessage = ConstrainedModelMessage<readonly ['text']>
-      type TextImageMessage = ConstrainedModelMessage<readonly ['text', 'image']>
-      type FullMessage = ConstrainedModelMessage<readonly ['text', 'image', 'audio', 'video', 'document']>
+      type TextImageMessage = ConstrainedModelMessage<
+        readonly ['text', 'image']
+      >
+      type FullMessage = ConstrainedModelMessage<
+        readonly ['text', 'image', 'audio', 'video', 'document']
+      >
 
-      expectTypeOf<{ role: 'user'; content: string }>().toExtend<TextOnlyMessage>()
-      expectTypeOf<{ role: 'user'; content: string }>().toExtend<TextImageMessage>()
+      expectTypeOf<{
+        role: 'user'
+        content: string
+      }>().toExtend<TextOnlyMessage>()
+      expectTypeOf<{
+        role: 'user'
+        content: string
+      }>().toExtend<TextImageMessage>()
       expectTypeOf<{ role: 'user'; content: string }>().toExtend<FullMessage>()
     })
 
     it('should always allow null content regardless of modalities', () => {
       type TextOnlyMessage = ConstrainedModelMessage<readonly ['text']>
-      type TextImageMessage = ConstrainedModelMessage<readonly ['text', 'image']>
+      type TextImageMessage = ConstrainedModelMessage<
+        readonly ['text', 'image']
+      >
 
-      expectTypeOf<{ role: 'assistant'; content: null }>().toExtend<TextOnlyMessage>()
-      expectTypeOf<{ role: 'assistant'; content: null }>().toExtend<TextImageMessage>()
+      expectTypeOf<{
+        role: 'assistant'
+        content: null
+      }>().toExtend<TextOnlyMessage>()
+      expectTypeOf<{
+        role: 'assistant'
+        content: null
+      }>().toExtend<TextImageMessage>()
     })
   })
 })

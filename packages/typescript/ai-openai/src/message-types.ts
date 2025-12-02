@@ -40,15 +40,13 @@ export interface OpenAIAudioMetadata {
  * Metadata for OpenAI video content parts.
  * Note: Video support in OpenAI is limited; check current API capabilities.
  */
-export interface OpenAIVideoMetadata {
-}
+export interface OpenAIVideoMetadata {}
 
 /**
  * Metadata for OpenAI document content parts.
  * Note: Direct document support may vary; PDFs often need to be converted to images.
  */
-export interface OpenAIDocumentMetadata {
-}
+export interface OpenAIDocumentMetadata {}
 
 /**
  * Map of modality types to their OpenAI-specific metadata types.

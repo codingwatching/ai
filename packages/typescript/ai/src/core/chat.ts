@@ -746,8 +746,8 @@ export async function* chat<
     any,
     any
   >
-  ? Models[number]
-  : string,
+    ? Models[number]
+    : string,
 >(
   options: ChatStreamOptionsForModel<TAdapter, TModel>,
 ): AsyncIterable<StreamChunk> {

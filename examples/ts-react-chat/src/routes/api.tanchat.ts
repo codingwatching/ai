@@ -3,7 +3,7 @@ import { chat, maxIterations, toStreamResponse } from '@tanstack/ai'
 import { openai } from '@tanstack/ai-openai'
 // import { ollama } from "@tanstack/ai-ollama";
 // import { anthropic } from '@tanstack/ai-anthropic'
-// import { gemini } from "@tanstack/ai-gemini"; 
+// import { gemini } from "@tanstack/ai-gemini";
 import {
   addToCartToolDef,
   addToWishListToolDef,
@@ -63,7 +63,7 @@ export const Route = createFileRoute('/api/tanchat')({
         try {
           const stream = chat({
             adapter: openai(),
-            model: "gpt-5",
+            model: 'gpt-5',
             tools: [
               getGuitars.server, // Server function tool
               recommendGuitarToolDef, // No server execute - client will handle

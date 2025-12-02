@@ -32,18 +32,32 @@ import type {
  */
 export function messages<
   TAdapter extends AIAdapter<any, any, any, any, any, any>,
-  const TModel extends TAdapter extends AIAdapter<infer Models, any, any, any, any, any>
-  ? Models[number]
-  : string,
+  const TModel extends TAdapter extends AIAdapter<
+    infer Models,
+    any,
+    any,
+    any,
+    any,
+    any
+  >
+    ? Models[number]
+    : string,
 >(
   _options: { adapter: TAdapter; model: TModel },
-  msgs: TAdapter extends AIAdapter<any, any, any, any, any, infer ModelInputModalities>
+  msgs: TAdapter extends AIAdapter<
+    any,
+    any,
+    any,
+    any,
+    any,
+    infer ModelInputModalities
+  >
     ? TModel extends keyof ModelInputModalities
-    ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
-    ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
-    : Array<ModelMessage>
-    : Array<ModelMessage>
+      ? ModelInputModalities[TModel] extends ReadonlyArray<Modality>
+        ? Array<ConstrainedModelMessage<ModelInputModalities[TModel]>>
+        : Array<ModelMessage>
+      : Array<ModelMessage>
     : Array<ModelMessage>,
 ): typeof msgs {
   return msgs
-} 
+}

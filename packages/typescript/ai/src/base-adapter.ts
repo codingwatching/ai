@@ -32,14 +32,15 @@ export abstract class BaseAdapter<
     ReadonlyArray<Modality>
   > = Record<string, ReadonlyArray<Modality>>,
 > implements
-  AIAdapter<
-    TChatModels,
-    TEmbeddingModels,
-    TChatProviderOptions,
-    TEmbeddingProviderOptions,
-    TModelProviderOptionsByName,
-    TModelInputModalitiesByName
-  > {
+    AIAdapter<
+      TChatModels,
+      TEmbeddingModels,
+      TChatProviderOptions,
+      TEmbeddingProviderOptions,
+      TModelProviderOptionsByName,
+      TModelInputModalitiesByName
+    >
+{
   abstract name: string
   abstract models: TChatModels
   embeddingModels?: TEmbeddingModels

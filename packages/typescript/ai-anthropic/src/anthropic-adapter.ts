@@ -45,8 +45,8 @@ export type AnthropicProviderOptions = ExternalTextProviderOptions
 
 type AnthropicContentBlocks =
   Extract<MessageParam['content'], Array<unknown>> extends Array<infer Block>
-  ? Array<Block>
-  : never
+    ? Array<Block>
+    : never
 type AnthropicContentBlock =
   AnthropicContentBlocks extends Array<infer Block> ? Block : never
 
@@ -215,9 +215,9 @@ export class Anthropic extends BaseAdapter<
           const value = providerOptions[key]
           // Anthropic expects tool_choice to be an object, not a string
           if (key === 'tool_choice' && typeof value === 'string') {
-            ; (validProviderOptions as any)[key] = { type: value }
+            ;(validProviderOptions as any)[key] = { type: value }
           } else {
-            ; (validProviderOptions as any)[key] = value
+            ;(validProviderOptions as any)[key] = value
           }
         }
       }
@@ -262,14 +262,14 @@ export class Anthropic extends BaseAdapter<
         const imageSource: Base64ImageSource | URLImageSource =
           part.source.type === 'data'
             ? {
-              type: 'base64',
-              data: part.source.value,
-              media_type: (metadata?.mediaType ?? 'image/jpeg'),
-            }
+                type: 'base64',
+                data: part.source.value,
+                media_type: metadata?.mediaType ?? 'image/jpeg',
+              }
             : {
-              type: 'url',
-              url: part.source.value,
-            }
+                type: 'url',
+                url: part.source.value,
+              }
         return {
           type: 'image',
           source: imageSource,
@@ -279,14 +279,14 @@ export class Anthropic extends BaseAdapter<
         const docSource: Base64PDFSource | URLPDFSource =
           part.source.type === 'data'
             ? {
-              type: 'base64',
-              data: part.source.value,
-              media_type: 'application/pdf',
-            }
+                type: 'base64',
+                data: part.source.value,
+                media_type: 'application/pdf',
+              }
             : {
-              type: 'url',
-              url: part.source.value,
-            }
+                type: 'url',
+                url: part.source.value,
+              }
         return {
           type: 'document',
           source: docSource,
@@ -335,7 +335,8 @@ export class Anthropic extends BaseAdapter<
         const contentBlocks: AnthropicContentBlocks = []
 
         if (message.content) {
-          const content = typeof message.content === 'string' ? message.content : ''
+          const content =
+            typeof message.content === 'string' ? message.content : ''
           const textBlock: AnthropicContentBlock = {
             type: 'text',
             text: content,
@@ -385,7 +386,13 @@ export class Anthropic extends BaseAdapter<
       formattedMessages.push({
         role: role === 'assistant' ? 'assistant' : 'user',
         content:
-          typeof message.content === 'string' ? message.content : message.content ? message.content.map(c => this.convertContentPartToAnthropic(c)) : "",
+          typeof message.content === 'string'
+            ? message.content
+            : message.content
+              ? message.content.map((c) =>
+                  this.convertContentPartToAnthropic(c),
+                )
+              : '',
       })
     }
 

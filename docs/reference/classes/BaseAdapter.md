@@ -3,9 +3,9 @@ id: BaseAdapter
 title: BaseAdapter
 ---
 
-# Abstract Class: BaseAdapter\<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName\>
+# Abstract Class: BaseAdapter\<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName, TModelInputModalitiesByName\>
 
-Defined in: [base-adapter.ts:22](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L22)
+Defined in: [base-adapter.ts:24](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L24)
 
 Base adapter class with support for endpoint-specific models and provider options.
 
@@ -15,6 +15,7 @@ Generic parameters:
 - TChatProviderOptions: Provider-specific options for chat endpoint
 - TEmbeddingProviderOptions: Provider-specific options for embedding endpoint
 - TModelProviderOptionsByName: Provider-specific options for model by name
+- TModelInputModalitiesByName: Map from model name to its supported input modalities
 
 ## Type Parameters
 
@@ -38,19 +39,23 @@ Generic parameters:
 
 `TModelProviderOptionsByName` *extends* `Record`\<`string`, `any`\> = `Record`\<`string`, `any`\>
 
+### TModelInputModalitiesByName
+
+`TModelInputModalitiesByName` *extends* `Record`\<`string`, `ReadonlyArray`\<[`Modality`](../type-aliases/Modality.md)\>\> = `Record`\<`string`, `ReadonlyArray`\<[`Modality`](../type-aliases/Modality.md)\>\>
+
 ## Implements
 
-- [`AIAdapter`](../interfaces/AIAdapter.md)\<`TChatModels`, `TEmbeddingModels`, `TChatProviderOptions`, `TEmbeddingProviderOptions`, `TModelProviderOptionsByName`\>
+- [`AIAdapter`](../interfaces/AIAdapter.md)\<`TChatModels`, `TEmbeddingModels`, `TChatProviderOptions`, `TEmbeddingProviderOptions`, `TModelProviderOptionsByName`, `TModelInputModalitiesByName`\>
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new BaseAdapter<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName>(config): BaseAdapter<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName>;
+new BaseAdapter<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName, TModelInputModalitiesByName>(config): BaseAdapter<TChatModels, TEmbeddingModels, TChatProviderOptions, TEmbeddingProviderOptions, TModelProviderOptionsByName, TModelInputModalitiesByName>;
 ```
 
-Defined in: [base-adapter.ts:49](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L49)
+Defined in: [base-adapter.ts:58](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L58)
 
 #### Parameters
 
@@ -60,7 +65,7 @@ Defined in: [base-adapter.ts:49](https://github.com/TanStack/ai/blob/main/packag
 
 #### Returns
 
-`BaseAdapter`\<`TChatModels`, `TEmbeddingModels`, `TChatProviderOptions`, `TEmbeddingProviderOptions`, `TModelProviderOptionsByName`\>
+`BaseAdapter`\<`TChatModels`, `TEmbeddingModels`, `TChatProviderOptions`, `TEmbeddingProviderOptions`, `TModelProviderOptionsByName`, `TModelInputModalitiesByName`\>
 
 ## Properties
 
@@ -70,7 +75,7 @@ Defined in: [base-adapter.ts:49](https://github.com/TanStack/ai/blob/main/packag
 optional _chatProviderOptions: TChatProviderOptions;
 ```
 
-Defined in: [base-adapter.ts:44](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L44)
+Defined in: [base-adapter.ts:51](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L51)
 
 #### Implementation of
 
@@ -84,11 +89,29 @@ Defined in: [base-adapter.ts:44](https://github.com/TanStack/ai/blob/main/packag
 optional _embeddingProviderOptions: TEmbeddingProviderOptions;
 ```
 
-Defined in: [base-adapter.ts:45](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L45)
+Defined in: [base-adapter.ts:52](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L52)
 
 #### Implementation of
 
 [`AIAdapter`](../interfaces/AIAdapter.md).[`_embeddingProviderOptions`](../interfaces/AIAdapter.md#_embeddingprovideroptions)
+
+***
+
+### \_modelInputModalitiesByName?
+
+```ts
+optional _modelInputModalitiesByName: TModelInputModalitiesByName;
+```
+
+Defined in: [base-adapter.ts:56](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L56)
+
+Type-only map from model name to its supported input modalities.
+Used by the core AI types to narrow ContentPart types based on the selected model.
+Must be provided by all adapters.
+
+#### Implementation of
+
+[`AIAdapter`](../interfaces/AIAdapter.md).[`_modelInputModalitiesByName`](../interfaces/AIAdapter.md#_modelinputmodalitiesbyname)
 
 ***
 
@@ -98,7 +121,7 @@ Defined in: [base-adapter.ts:45](https://github.com/TanStack/ai/blob/main/packag
 _modelProviderOptionsByName: TModelProviderOptionsByName;
 ```
 
-Defined in: [base-adapter.ts:47](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L47)
+Defined in: [base-adapter.ts:54](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L54)
 
 Type-only map from model name to its specific provider options.
 Used by the core AI types to narrow providerOptions based on the selected model.
@@ -116,7 +139,7 @@ Must be provided by all adapters.
 optional _providerOptions: TChatProviderOptions;
 ```
 
-Defined in: [base-adapter.ts:43](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L43)
+Defined in: [base-adapter.ts:50](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L50)
 
 #### Implementation of
 
@@ -130,7 +153,7 @@ Defined in: [base-adapter.ts:43](https://github.com/TanStack/ai/blob/main/packag
 protected config: AIAdapterConfig;
 ```
 
-Defined in: [base-adapter.ts:40](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L40)
+Defined in: [base-adapter.ts:47](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L47)
 
 ***
 
@@ -140,7 +163,7 @@ Defined in: [base-adapter.ts:40](https://github.com/TanStack/ai/blob/main/packag
 optional embeddingModels: TEmbeddingModels;
 ```
 
-Defined in: [base-adapter.ts:39](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L39)
+Defined in: [base-adapter.ts:46](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L46)
 
 Models that support embeddings
 
@@ -156,7 +179,7 @@ Models that support embeddings
 abstract models: TChatModels;
 ```
 
-Defined in: [base-adapter.ts:38](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L38)
+Defined in: [base-adapter.ts:45](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L45)
 
 Models that support chat/text completion
 
@@ -172,7 +195,7 @@ Models that support chat/text completion
 abstract name: string;
 ```
 
-Defined in: [base-adapter.ts:37](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L37)
+Defined in: [base-adapter.ts:44](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L44)
 
 #### Implementation of
 
@@ -186,7 +209,7 @@ Defined in: [base-adapter.ts:37](https://github.com/TanStack/ai/blob/main/packag
 abstract chatStream(options): AsyncIterable<StreamChunk>;
 ```
 
-Defined in: [base-adapter.ts:53](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L53)
+Defined in: [base-adapter.ts:62](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L62)
 
 #### Parameters
 
@@ -210,7 +233,7 @@ Defined in: [base-adapter.ts:53](https://github.com/TanStack/ai/blob/main/packag
 abstract createEmbeddings(options): Promise<EmbeddingResult>;
 ```
 
-Defined in: [base-adapter.ts:58](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L58)
+Defined in: [base-adapter.ts:67](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L67)
 
 #### Parameters
 
@@ -234,7 +257,7 @@ Defined in: [base-adapter.ts:58](https://github.com/TanStack/ai/blob/main/packag
 protected generateId(): string;
 ```
 
-Defined in: [base-adapter.ts:60](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L60)
+Defined in: [base-adapter.ts:69](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L69)
 
 #### Returns
 
@@ -248,7 +271,7 @@ Defined in: [base-adapter.ts:60](https://github.com/TanStack/ai/blob/main/packag
 abstract summarize(options): Promise<SummarizationResult>;
 ```
 
-Defined in: [base-adapter.ts:55](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L55)
+Defined in: [base-adapter.ts:64](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/base-adapter.ts#L64)
 
 #### Parameters
 

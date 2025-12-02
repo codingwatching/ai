@@ -1178,33 +1178,62 @@ describe('OpenAI Model Input Modality Type Assertions', () => {
 
   describe('String and null content should always be allowed', () => {
     it('text+image models should allow string content', () => {
-      type GPT51Message = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['gpt-5.1']>
-      type O3Message = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['o3']>
+      type GPT51Message = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['gpt-5.1']
+      >
+      type O3Message = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['o3']
+      >
 
       expectTypeOf<{ role: 'user'; content: string }>().toExtend<GPT51Message>()
       expectTypeOf<{ role: 'user'; content: string }>().toExtend<O3Message>()
     })
 
     it('text-only models should allow string content', () => {
-      type O3MiniMessage = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['o3-mini']>
+      type O3MiniMessage = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['o3-mini']
+      >
 
-      expectTypeOf<{ role: 'user'; content: string }>().toExtend<O3MiniMessage>()
+      expectTypeOf<{
+        role: 'user'
+        content: string
+      }>().toExtend<O3MiniMessage>()
     })
 
     it('text+audio models should allow string content', () => {
-      type GPTAudioMessage = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['gpt-audio']>
+      type GPTAudioMessage = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['gpt-audio']
+      >
 
-      expectTypeOf<{ role: 'user'; content: string }>().toExtend<GPTAudioMessage>()
+      expectTypeOf<{
+        role: 'user'
+        content: string
+      }>().toExtend<GPTAudioMessage>()
     })
 
     it('all models should allow null content', () => {
-      type GPT51Message = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['gpt-5.1']>
-      type O3MiniMessage = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['o3-mini']>
-      type GPTAudioMessage = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['gpt-audio']>
+      type GPT51Message = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['gpt-5.1']
+      >
+      type O3MiniMessage = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['o3-mini']
+      >
+      type GPTAudioMessage = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['gpt-audio']
+      >
 
-      expectTypeOf<{ role: 'assistant'; content: null }>().toExtend<GPT51Message>()
-      expectTypeOf<{ role: 'assistant'; content: null }>().toExtend<O3MiniMessage>()
-      expectTypeOf<{ role: 'assistant'; content: null }>().toExtend<GPTAudioMessage>()
+      expectTypeOf<{
+        role: 'assistant'
+        content: null
+      }>().toExtend<GPT51Message>()
+      expectTypeOf<{
+        role: 'assistant'
+        content: null
+      }>().toExtend<O3MiniMessage>()
+      expectTypeOf<{
+        role: 'assistant'
+        content: null
+      }>().toExtend<GPTAudioMessage>()
     })
   })
 
@@ -1212,20 +1241,30 @@ describe('OpenAI Model Input Modality Type Assertions', () => {
 
   describe('Mixed content part validation', () => {
     it('should NOT allow mixing valid and invalid content parts', () => {
-      type GPT51Message = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['gpt-5.1']>
+      type GPT51Message = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['gpt-5.1']
+      >
 
       // TextPart + VideoPart should NOT be allowed (GPT-5.1 doesn't support video)
-      expectTypeOf<MessageWithContent<TextPart | VideoPart>>().not.toExtend<GPT51Message>()
+      expectTypeOf<
+        MessageWithContent<TextPart | VideoPart>
+      >().not.toExtend<GPT51Message>()
 
       // ImagePart + AudioPart should NOT be allowed (GPT-5.1 doesn't support audio)
-      expectTypeOf<MessageWithContent<ImagePart | AudioPart>>().not.toExtend<GPT51Message>()
+      expectTypeOf<
+        MessageWithContent<ImagePart | AudioPart>
+      >().not.toExtend<GPT51Message>()
     })
 
     it('should allow mixing valid content parts', () => {
-      type GPT51Message = ConstrainedModelMessage<OpenAIModelInputModalitiesByName['gpt-5.1']>
+      type GPT51Message = ConstrainedModelMessage<
+        OpenAIModelInputModalitiesByName['gpt-5.1']
+      >
 
       // TextPart + ImagePart should be allowed
-      expectTypeOf<MessageWithContent<TextPart | ImagePart>>().toExtend<GPT51Message>()
+      expectTypeOf<
+        MessageWithContent<TextPart | ImagePart>
+      >().toExtend<GPT51Message>()
     })
   })
 })

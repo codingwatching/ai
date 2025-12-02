@@ -23,7 +23,12 @@ import type {
   GenerateContentResponse,
   Part,
 } from '@google/genai'
-import type { GeminiAudioMetadata, GeminiDocumentMetadata, GeminiImageMetadata, GeminiVideoMetadata } from './message-types'
+import type {
+  GeminiAudioMetadata,
+  GeminiDocumentMetadata,
+  GeminiImageMetadata,
+  GeminiVideoMetadata,
+} from './message-types'
 
 export interface GeminiAdapterConfig extends AIAdapterConfig {
   apiKey: string
@@ -65,11 +70,11 @@ export class GeminiAdapter extends BaseAdapter<
     const mappedOptions = this.mapCommonOptionsToGemini(options)
 
     try {
-      const result = await this.client.models.generateContentStream(mappedOptions)
+      const result =
+        await this.client.models.generateContentStream(mappedOptions)
 
       yield* this.processStreamChunks(result, options.model)
     } catch (error) {
-
       const timestamp = Date.now()
       yield {
         type: 'error',
@@ -377,10 +382,10 @@ export class GeminiAdapter extends BaseAdapter<
           finishReason: toolCallMap.size > 0 ? 'tool_calls' : 'stop',
           usage: chunk.usageMetadata
             ? {
-              promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
-              completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
-              totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
-            }
+                promptTokens: chunk.usageMetadata.promptTokenCount ?? 0,
+                completionTokens: chunk.usageMetadata.thoughtsTokenCount ?? 0,
+                totalTokens: chunk.usageMetadata.totalTokenCount ?? 0,
+              }
             : undefined,
         }
       }
@@ -395,20 +400,25 @@ export class GeminiAdapter extends BaseAdapter<
       case 'audio':
       case 'video':
       case 'document': {
-        const metadata = part.metadata as GeminiDocumentMetadata | GeminiImageMetadata | GeminiVideoMetadata | GeminiAudioMetadata | undefined
+        const metadata = part.metadata as
+          | GeminiDocumentMetadata
+          | GeminiImageMetadata
+          | GeminiVideoMetadata
+          | GeminiAudioMetadata
+          | undefined
         // Gemini uses inlineData for base64 and fileData for URLs
         if (part.source.type === 'data') {
           return {
             inlineData: {
               data: part.source.value,
-              mimeType: metadata?.mimeType ?? "image/jpeg",
+              mimeType: metadata?.mimeType ?? 'image/jpeg',
             },
           }
         } else {
           return {
             fileData: {
               fileUri: part.source.value,
-              mimeType: metadata?.mimeType ?? "image/jpeg",
+              mimeType: metadata?.mimeType ?? 'image/jpeg',
             },
           }
         }

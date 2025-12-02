@@ -55,11 +55,11 @@ export interface AnthropicAudioMetadata {
    * The MIME type of the audio.
    */
   mediaType?:
-  | 'audio/mpeg'
-  | 'audio/wav'
-  | 'audio/ogg'
-  | 'audio/webm'
-  | 'audio/flac'
+    | 'audio/mpeg'
+    | 'audio/wav'
+    | 'audio/ogg'
+    | 'audio/webm'
+    | 'audio/flac'
 }
 
 /**

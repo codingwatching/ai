@@ -12,7 +12,7 @@ import type { ShellTool } from '../tools/shell-tool'
 import type { ToolChoice } from '../tools/tool-choice'
 import type { WebSearchPreviewTool } from '../tools/web-search-preview-tool'
 import type { WebSearchTool } from '../tools/web-search-tool'
-import type { ContentPart, } from '@tanstack/ai'
+import type { ContentPart } from '@tanstack/ai'
 import type { OpenAIAudioMetadata, OpenAIImageMetadata } from '../message-types'
 
 // Core, always-available options for Responses API
@@ -311,7 +311,6 @@ const validateMetadata = (options: InternalTextProviderOptions) => {
   }
 }
 
-
 /**
  * Converts a ContentPart to OpenAI input content item.
  * Handles text, image, and audio content parts.
@@ -324,7 +323,6 @@ export function convertContentPartToOpenAI(
       return {
         type: 'input_text',
         text: part.text,
-
       }
     case 'image': {
       const imageMetadata = part.metadata
@@ -343,19 +341,18 @@ export function convertContentPartToOpenAI(
       }
     }
     case 'audio': {
-
       if (part.source.type === 'url') {
         // OpenAI may support audio URLs in the future
         // For now, treat as data URI
         return {
-          type: "input_file",
+          type: 'input_file',
 
-          "file_url": part.source.value
+          file_url: part.source.value,
         }
       }
       return {
-        type: "input_file",
-        "file_data": part.source.value
+        type: 'input_file',
+        file_data: part.source.value,
       }
     }
 
@@ -383,7 +380,9 @@ export function normalizeContent(
 /**
  * Extracts text content from a content value that may be string, null, or ContentPart array.
  */
-export function extractTextContent(content: string | null | Array<ContentPart>): string {
+export function extractTextContent(
+  content: string | null | Array<ContentPart>,
+): string {
   if (content === null) {
     return ''
   }
