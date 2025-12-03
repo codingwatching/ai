@@ -45,21 +45,33 @@ interface ModelMeta<TProviderOptions = unknown> {
 // OpenAI’s open-weight models designed for powerful reasoning, agentic tasks, and versatile developer use cases.
 const GPT_OSS_LATEST = {
   name: 'gpt-oss:',
-  supports: { input: ['text'], capabilities: ['tools', 'thinking'] },
+  supports: {
+    input: ['text'],
+    output: ['text'],
+    capabilities: ['tools', 'thinking'],
+  },
   size: '14gb',
   context: '128k',
 } as const satisfies ModelMeta<any>
 
 const GPT_OSS_20b = {
   name: 'gpt-oss:20b',
-  supports: { input: ['text'], capabilities: ['tools', 'thinking'] },
+  supports: {
+    input: ['text'],
+    output: ['text'],
+    capabilities: ['tools', 'thinking'],
+  },
   size: '14gb',
   context: '128k',
 } as const satisfies ModelMeta<any>
 
 const GPT_OSS_120b = {
   name: 'gpt-oss:120b',
-  supports: { input: ['text'], capabilities: ['tools', 'thinking'] },
+  supports: {
+    input: ['text'],
+    output: ['text'],
+    capabilities: ['tools', 'thinking'],
+  },
   size: '65gb',
   context: '128k',
 } as const satisfies ModelMeta<any>
@@ -68,21 +80,33 @@ const GPT_OSS_120b = {
 // gpt-oss-safeguard-20b and gpt-oss-safeguard-120b are safety reasoning models built-upon gpt-oss
 const GPT_OSS_SAFEGUARD_LATEST = {
   name: 'gpt-oss-safeguard:latest',
-  supports: { input: ['text'], capabilities: ['tools', 'thinking'] },
+  supports: {
+    input: ['text'],
+    output: ['text'],
+    capabilities: ['tools', 'thinking'],
+  },
   size: '14gb',
   context: '128k',
 } as const satisfies ModelMeta<any>
 
 const GPT_OSS_SAFEGUARD_20b = {
   name: 'gpt-oss-safeguard:20b',
-  supports: { input: ['text'], capabilities: ['tools', 'thinking'] },
+  supports: {
+    input: ['text'],
+    output: ['text'],
+    capabilities: ['tools', 'thinking'],
+  },
   size: '14gb',
   context: '128k',
 } as const satisfies ModelMeta<any>
 
 const GPT_OSS_SAFEGUARD_120b = {
   name: 'gpt-oss-safeguard:120b',
-  supports: { input: ['text'], capabilities: ['tools', 'thinking'] },
+  supports: {
+    input: ['text'],
+    output: ['text'],
+    capabilities: ['tools', 'thinking'],
+  },
   size: '65gb',
   context: '128k',
 } as const satisfies ModelMeta<any>
