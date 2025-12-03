@@ -48,7 +48,7 @@ interface ModelMeta<
 }
 const CLAUDE_SONNET_4_5 = {
   name: 'claude-sonnet-4-5',
-  id: 'claude-sonnet-4-5-20250929',
+  id: 'claude-sonnet-4-5',
   context_window: 200_000,
   max_output_tokens: 64_000,
   knowledge_cutoff: '2025-09-29',
@@ -78,7 +78,7 @@ const CLAUDE_SONNET_4_5 = {
 
 const CLAUDE_HAIKU_4_5 = {
   name: 'claude-haiku-4-5',
-  id: 'claude-haiku-4-5-20251001',
+  id: 'claude-haiku-4-5',
   context_window: 200_000,
   max_output_tokens: 64_000,
   knowledge_cutoff: '2025-10-01',
@@ -108,7 +108,7 @@ const CLAUDE_HAIKU_4_5 = {
 
 const CLAUDE_OPUS_4_1 = {
   name: 'claude-opus-4-1',
-  id: 'claude-opus-4-1-20250805',
+  id: 'claude-opus-4-1',
   context_window: 200_000,
   max_output_tokens: 64_000,
   knowledge_cutoff: '2025-08-05',
@@ -138,7 +138,7 @@ const CLAUDE_OPUS_4_1 = {
 
 const CLAUDE_OPUS_4_5 = {
   name: 'claude-opus-4-5',
-  id: 'claude-opus-4-5-20251101',
+  id: 'claude-opus-4-5',
   context_window: 200_000,
   max_output_tokens: 32_000,
   knowledge_cutoff: '2025-11-01',
@@ -168,7 +168,7 @@ const CLAUDE_OPUS_4_5 = {
 
 const CLAUDE_SONNET_4 = {
   name: 'claude-sonnet-4',
-  id: 'claude-sonnet-4-20250514',
+  id: 'claude-sonnet-4',
   context_window: 200_000,
   max_output_tokens: 64_000,
   knowledge_cutoff: '2025-05-14',
@@ -198,7 +198,7 @@ const CLAUDE_SONNET_4 = {
 
 const CLAUDE_SONNET_3_7 = {
   name: 'claude-sonnet-3-7',
-  id: 'claude-3-7-sonnet-20250219',
+  id: 'claude-3-7-sonnet',
   max_output_tokens: 64_000,
   knowledge_cutoff: '2025-05-14',
   pricing: {
@@ -227,7 +227,7 @@ const CLAUDE_SONNET_3_7 = {
 
 const CLAUDE_OPUS_4 = {
   name: 'claude-opus-4',
-  id: 'claude-opus-4-20250514',
+  id: 'claude-opus-4',
   context_window: 200_000,
   max_output_tokens: 32_000,
   knowledge_cutoff: '2025-05-14',
@@ -257,7 +257,7 @@ const CLAUDE_OPUS_4 = {
 
 const CLAUDE_HAIKU_3_5 = {
   name: 'claude-haiku-3-5',
-  id: 'claude-3-5-haiku-20241022',
+  id: 'claude-3-5-haiku',
   context_window: 200_000,
   max_output_tokens: 8_000,
   knowledge_cutoff: '2025-10-22',
@@ -287,7 +287,7 @@ const CLAUDE_HAIKU_3_5 = {
 
 const CLAUDE_HAIKU_3 = {
   name: 'claude-haiku-3',
-  id: 'claude-3-haiku-20240307',
+  id: 'claude-3-haiku',
   context_window: 200_000,
   max_output_tokens: 4_000,
   knowledge_cutoff: '2024-03-07',
@@ -470,13 +470,13 @@ export type AnthropicChatModelProviderOptionsByName = {
  * @see https://docs.anthropic.com/claude/docs/pdf-support
  */
 export type AnthropicModelInputModalitiesByName = {
-  'claude-opus-4-5-20250514': typeof CLAUDE_OPUS_4_5.supports.input
-  'claude-sonnet-4-5-20250514': typeof CLAUDE_SONNET_4_5.supports.input
-  'claude-haiku-4-5-20250514': typeof CLAUDE_HAIKU_4_5.supports.input
-  'claude-opus-4-1-20250414': typeof CLAUDE_OPUS_4_1.supports.input
-  'claude-sonnet-4-20250514': typeof CLAUDE_SONNET_4.supports.input
-  'claude-3-7-sonnet-20250219': typeof CLAUDE_SONNET_3_7.supports.input
-  'claude-opus-4-20250514': typeof CLAUDE_OPUS_4.supports.input
-  'claude-3-5-haiku-20241022': typeof CLAUDE_HAIKU_3_5.supports.input
-  'claude-3-haiku-20240307': typeof CLAUDE_HAIKU_3.supports.input
+  [CLAUDE_OPUS_4_5.id]: typeof CLAUDE_OPUS_4_5.supports.input
+  [CLAUDE_SONNET_4_5.id]: typeof CLAUDE_SONNET_4_5.supports.input
+  [CLAUDE_HAIKU_4_5.id]: typeof CLAUDE_HAIKU_4_5.supports.input
+  [CLAUDE_OPUS_4_1.id]: typeof CLAUDE_OPUS_4_1.supports.input
+  [CLAUDE_SONNET_4.id]: typeof CLAUDE_SONNET_4.supports.input
+  [CLAUDE_SONNET_3_7.id]: typeof CLAUDE_SONNET_3_7.supports.input
+  [CLAUDE_OPUS_4.id]: typeof CLAUDE_OPUS_4.supports.input
+  [CLAUDE_HAIKU_3_5.id]: typeof CLAUDE_HAIKU_3_5.supports.input
+  [CLAUDE_HAIKU_3.id]: typeof CLAUDE_HAIKU_3.supports.input
 }

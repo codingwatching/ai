@@ -43,9 +43,9 @@ type BaseOptions = AnthropicContainerOptions &
 
 describe('Anthropic Model Provider Options Type Assertions', () => {
   describe('Models WITH extended_thinking support', () => {
-    it('claude-sonnet-4-5-20250929 should support thinking options', () => {
+    it('claude-sonnet-4-5 should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
 
       // Should have thinking options
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
@@ -67,54 +67,54 @@ describe('Anthropic Model Provider Options Type Assertions', () => {
       expectTypeOf<Options>().toHaveProperty('top_k')
     })
 
-    it('claude-haiku-4-5-20251001 should support thinking options', () => {
+    it('claude-haiku-4-5 should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
 
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<Options>().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<Options>().toExtend<BaseOptions>()
     })
 
-    it('claude-opus-4-1-20250805 should support thinking options', () => {
+    it('claude-opus-4-1 should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
 
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<Options>().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<Options>().toExtend<BaseOptions>()
     })
 
-    it('claude-sonnet-4-20250514 should support thinking options', () => {
+    it('claude-sonnet-4 should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
 
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<Options>().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<Options>().toExtend<BaseOptions>()
     })
 
-    it('claude-3-7-sonnet-20250219 should support thinking options', () => {
+    it('claude-3-7-sonnet should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
 
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<Options>().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<Options>().toExtend<BaseOptions>()
     })
 
-    it('claude-opus-4-20250514 should support thinking options', () => {
+    it('claude-opus-4 should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
 
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<Options>().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<Options>().toExtend<BaseOptions>()
     })
 
-    it('claude-opus-4-5-20251101 should support thinking options', () => {
+    it('claude-opus-4-5 should support thinking options', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
 
       expectTypeOf<Options>().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<Options>().toExtend<AnthropicServiceTierOptions>()
@@ -133,9 +133,9 @@ describe('Anthropic Model Provider Options Type Assertions', () => {
   })
 
   describe('Models WITHOUT extended_thinking support', () => {
-    it('claude-3-5-haiku-20241022 should NOT have thinking options but SHOULD have service tier', () => {
+    it('claude-3-5-haiku should NOT have thinking options but SHOULD have service tier', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
 
       // Should NOT have thinking options
       expectTypeOf<Options>().not.toExtend<AnthropicThinkingOptions>()
@@ -156,9 +156,9 @@ describe('Anthropic Model Provider Options Type Assertions', () => {
       expectTypeOf<Options>().toHaveProperty('top_k')
     })
 
-    it('claude-3-haiku-20240307 should NOT have thinking options AND NOT have service tier', () => {
+    it('claude-3-haiku should NOT have thinking options AND NOT have service tier', () => {
       type Options =
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
 
       // Should NOT have thinking options
       expectTypeOf<Options>().not.toExtend<AnthropicThinkingOptions>()
@@ -183,196 +183,196 @@ describe('Anthropic Model Provider Options Type Assertions', () => {
     it('AnthropicChatModelProviderOptionsByName should have entries for all chat models', () => {
       type Keys = keyof AnthropicChatModelProviderOptionsByName
 
-      expectTypeOf<'claude-opus-4-5-20251101'>().toExtend<Keys>()
-      expectTypeOf<'claude-sonnet-4-5-20250929'>().toExtend<Keys>()
-      expectTypeOf<'claude-haiku-4-5-20251001'>().toExtend<Keys>()
-      expectTypeOf<'claude-opus-4-1-20250805'>().toExtend<Keys>()
-      expectTypeOf<'claude-sonnet-4-20250514'>().toExtend<Keys>()
-      expectTypeOf<'claude-3-7-sonnet-20250219'>().toExtend<Keys>()
-      expectTypeOf<'claude-opus-4-20250514'>().toExtend<Keys>()
-      expectTypeOf<'claude-3-5-haiku-20241022'>().toExtend<Keys>()
-      expectTypeOf<'claude-3-haiku-20240307'>().toExtend<Keys>()
+      expectTypeOf<'claude-opus-4-5'>().toExtend<Keys>()
+      expectTypeOf<'claude-sonnet-4-5'>().toExtend<Keys>()
+      expectTypeOf<'claude-haiku-4-5'>().toExtend<Keys>()
+      expectTypeOf<'claude-opus-4-1'>().toExtend<Keys>()
+      expectTypeOf<'claude-sonnet-4'>().toExtend<Keys>()
+      expectTypeOf<'claude-3-7-sonnet'>().toExtend<Keys>()
+      expectTypeOf<'claude-opus-4'>().toExtend<Keys>()
+      expectTypeOf<'claude-3-5-haiku'>().toExtend<Keys>()
+      expectTypeOf<'claude-3-haiku'>().toExtend<Keys>()
     })
   })
 
   describe('Detailed property type assertions', () => {
     it('all models should have container options', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toHaveProperty('container')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toHaveProperty('container')
     })
 
     it('all models should have context management options', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toHaveProperty('context_management')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toHaveProperty('context_management')
     })
 
     it('all models should have MCP options', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toHaveProperty('mcp_servers')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toHaveProperty('mcp_servers')
     })
 
     it('all models should have stop sequences options', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toHaveProperty('stop_sequences')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toHaveProperty('stop_sequences')
     })
 
     it('all models should have tool choice options', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toHaveProperty('tool_choice')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toHaveProperty('tool_choice')
     })
 
     it('all models should have sampling options (top_k)', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toHaveProperty('top_k')
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toHaveProperty('top_k')
     })
   })
@@ -380,97 +380,97 @@ describe('Anthropic Model Provider Options Type Assertions', () => {
   describe('Type discrimination between model categories', () => {
     it('models with extended_thinking should extend AnthropicThinkingOptions', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toExtend<AnthropicThinkingOptions>()
     })
 
     it('models without extended_thinking should NOT extend AnthropicThinkingOptions', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().not.toExtend<AnthropicThinkingOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().not.toExtend<AnthropicThinkingOptions>()
     })
 
     it('models with priority_tier should extend AnthropicServiceTierOptions', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toExtend<AnthropicServiceTierOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toExtend<AnthropicServiceTierOptions>()
     })
 
     it('models without priority_tier should NOT extend AnthropicServiceTierOptions', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().not.toExtend<AnthropicServiceTierOptions>()
     })
 
     it('all models should extend base options', () => {
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-5-20251101']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-5']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5-20250929']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-5']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5-20251001']
+        AnthropicChatModelProviderOptionsByName['claude-haiku-4-5']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-1-20250805']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4-1']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-sonnet-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-sonnet-4']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet-20250219']
+        AnthropicChatModelProviderOptionsByName['claude-3-7-sonnet']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-opus-4-20250514']
+        AnthropicChatModelProviderOptionsByName['claude-opus-4']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku-20241022']
+        AnthropicChatModelProviderOptionsByName['claude-3-5-haiku']
       >().toExtend<BaseOptions>()
       expectTypeOf<
-        AnthropicChatModelProviderOptionsByName['claude-3-haiku-20240307']
+        AnthropicChatModelProviderOptionsByName['claude-3-haiku']
       >().toExtend<BaseOptions>()
     })
   })
@@ -491,7 +491,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Opus 4.5 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-opus-4-5-20250514']
+      AnthropicModelInputModalitiesByName['claude-opus-4-5']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -508,7 +508,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Sonnet 4.5 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-sonnet-4-5-20250514']
+      AnthropicModelInputModalitiesByName['claude-sonnet-4-5']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -525,7 +525,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Haiku 4.5 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-haiku-4-5-20250514']
+      AnthropicModelInputModalitiesByName['claude-haiku-4-5']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -542,7 +542,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Opus 4.1 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-opus-4-1-20250414']
+      AnthropicModelInputModalitiesByName['claude-opus-4-1']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -559,7 +559,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Sonnet 4 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-sonnet-4-20250514']
+      AnthropicModelInputModalitiesByName['claude-sonnet-4']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -576,7 +576,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude 3.7 Sonnet (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-3-7-sonnet-20250219']
+      AnthropicModelInputModalitiesByName['claude-3-7-sonnet']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -593,7 +593,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude Opus 4 (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-opus-4-20250514']
+      AnthropicModelInputModalitiesByName['claude-opus-4']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -610,7 +610,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude 3.5 Haiku (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-3-5-haiku-20241022']
+      AnthropicModelInputModalitiesByName['claude-3-5-haiku']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {
@@ -627,7 +627,7 @@ describe('Anthropic Model Input Modality Type Assertions', () => {
 
   describe('Claude 3 Haiku (text + image + document)', () => {
     type Modalities =
-      AnthropicModelInputModalitiesByName['claude-3-haiku-20240307']
+      AnthropicModelInputModalitiesByName['claude-3-haiku']
     type Message = ConstrainedModelMessage<Modalities>
 
     it('should allow TextPart, ImagePart, and DocumentPart', () => {

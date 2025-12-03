@@ -874,14 +874,14 @@ export type GeminiChatModelProviderOptionsByName = {
  */
 export type GeminiModelInputModalitiesByName = {
   // Models with full multimodal support (text, image, audio, video, document)
-  'gemini-3-pro-preview': typeof GEMINI_3_PRO.supports.input
-  'gemini-2.5-pro': typeof GEMINI_2_5_PRO.supports.input
-  'gemini-2.5-flash-lite': typeof GEMINI_2_5_FLASH_LITE.supports.input
-  'gemini-2.5-flash-lite-preview-09-2025': typeof GEMINI_2_5_FLASH_LITE_PREVIEW.supports.input
+  [GEMINI_3_PRO.name]: typeof GEMINI_3_PRO.supports.input
+  [GEMINI_2_5_PRO.name]: typeof GEMINI_2_5_PRO.supports.input
+  [GEMINI_2_5_FLASH_LITE.name]: typeof GEMINI_2_5_FLASH_LITE.supports.input
+  [GEMINI_2_5_FLASH_LITE_PREVIEW.name]: typeof GEMINI_2_5_FLASH_LITE_PREVIEW.supports.input
 
   // Models with text, image, audio, video (no document)
-  'gemini-2.5-flash': typeof GEMINI_2_5_FLASH.supports.input
-  'gemini-2.5-flash-preview-09-2025': typeof GEMINI_2_5_FLASH_PREVIEW.supports.input
-  'gemini-2.0-flash': typeof GEMINI_2_FLASH.supports.input
-  'gemini-2.0-flash-lite': typeof GEMINI_2_FLASH_LITE.supports.input
+  [GEMINI_2_5_FLASH.name]: typeof GEMINI_2_5_FLASH.supports.input
+  [GEMINI_2_5_FLASH_PREVIEW.name]: typeof GEMINI_2_5_FLASH_PREVIEW.supports.input
+  [GEMINI_2_FLASH.name]: typeof GEMINI_2_FLASH.supports.input
+  [GEMINI_2_FLASH_LITE.name]: typeof GEMINI_2_FLASH_LITE.supports.input
 }
