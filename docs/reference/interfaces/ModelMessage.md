@@ -3,19 +3,25 @@ id: ModelMessage
 title: ModelMessage
 ---
 
-# Interface: ModelMessage
+# Interface: ModelMessage\<TContent\>
 
-Defined in: [types.ts:13](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L13)
+Defined in: [types.ts:159](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L159)
+
+## Type Parameters
+
+### TContent
+
+`TContent` *extends* `string` \| `null` \| [`ContentPart`](../type-aliases/ContentPart.md)[] = `string` \| `null` \| [`ContentPart`](../type-aliases/ContentPart.md)[]
 
 ## Properties
 
 ### content
 
 ```ts
-content: string | null;
+content: TContent;
 ```
 
-Defined in: [types.ts:15](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L15)
+Defined in: [types.ts:166](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L166)
 
 ***
 
@@ -25,17 +31,17 @@ Defined in: [types.ts:15](https://github.com/TanStack/ai/blob/main/packages/type
 optional name: string;
 ```
 
-Defined in: [types.ts:16](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L16)
+Defined in: [types.ts:167](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L167)
 
 ***
 
 ### role
 
 ```ts
-role: "system" | "user" | "assistant" | "tool";
+role: "user" | "assistant" | "tool";
 ```
 
-Defined in: [types.ts:14](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L14)
+Defined in: [types.ts:165](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L165)
 
 ***
 
@@ -45,7 +51,7 @@ Defined in: [types.ts:14](https://github.com/TanStack/ai/blob/main/packages/type
 optional toolCallId: string;
 ```
 
-Defined in: [types.ts:18](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L18)
+Defined in: [types.ts:169](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L169)
 
 ***
 
@@ -55,4 +61,4 @@ Defined in: [types.ts:18](https://github.com/TanStack/ai/blob/main/packages/type
 optional toolCalls: ToolCall[];
 ```
 
-Defined in: [types.ts:17](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L17)
+Defined in: [types.ts:168](https://github.com/TanStack/ai/blob/main/packages/typescript/ai/src/types.ts#L168)

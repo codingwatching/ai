@@ -1,24 +1,32 @@
 import OpenAI_SDK from 'openai'
 import { BaseAdapter } from '@tanstack/ai'
 import { OPENAI_CHAT_MODELS, OPENAI_EMBEDDING_MODELS } from './model-meta'
-import {
-  convertMessagesToInput,
-  validateTextProviderOptions,
-} from './text/text-provider-options'
+import { validateTextProviderOptions } from './text/text-provider-options'
 import { convertToolsToProviderFormat } from './tools'
+import type { Responses } from 'openai/resources'
 import type {
   ChatOptions,
+  ContentPart,
   EmbeddingOptions,
   EmbeddingResult,
+  ModelMessage,
   StreamChunk,
   SummarizationOptions,
   SummarizationResult,
 } from '@tanstack/ai'
-import type { OpenAIChatModelProviderOptionsByName } from './model-meta'
+import type {
+  OpenAIChatModelProviderOptionsByName,
+  OpenAIModelInputModalitiesByName,
+} from './model-meta'
 import type {
   ExternalTextProviderOptions,
   InternalTextProviderOptions,
 } from './text/text-provider-options'
+import type {
+  OpenAIAudioMetadata,
+  OpenAIImageMetadata,
+  OpenAIMessageMetadataByModality,
+} from './message-types'
 
 export interface OpenAIConfig {
   apiKey: string
@@ -48,7 +56,9 @@ export class OpenAI extends BaseAdapter<
   typeof OPENAI_EMBEDDING_MODELS,
   OpenAIProviderOptions,
   OpenAIEmbeddingProviderOptions,
-  OpenAIChatModelProviderOptionsByName
+  OpenAIChatModelProviderOptionsByName,
+  OpenAIModelInputModalitiesByName,
+  OpenAIMessageMetadataByModality
 > {
   name = 'openai' as const
   models = OPENAI_CHAT_MODELS
@@ -61,6 +71,12 @@ export class OpenAI extends BaseAdapter<
   // Using definite assignment assertion (!) since this is type-only.
   // @ts-ignore - We never assign this at runtime and it's only used for types
   _modelProviderOptionsByName: OpenAIChatModelProviderOptionsByName
+  // Type-only map for model input modalities; used for multimodal content type constraints
+  // @ts-ignore - We never assign this at runtime and it's only used for types
+  _modelInputModalitiesByName?: OpenAIModelInputModalitiesByName
+  // Type-only map for message metadata types; used for type-safe metadata autocomplete
+  // @ts-ignore - We never assign this at runtime and it's only used for types
+  _messageMetadataByModality?: OpenAIMessageMetadataByModality
 
   constructor(config: OpenAIConfig) {
     super({})
@@ -191,6 +207,10 @@ export class OpenAI extends BaseAdapter<
     const timestamp = Date.now()
     let chunkCount = 0
 
+    // Track if we've been streaming deltas to avoid duplicating content from done events
+    let hasStreamedContentDeltas = false
+    let hasStreamedReasoningDeltas = false
+
     // Preserve response metadata across events
     let responseId: string | null = null
     let model: string = options.model
@@ -248,6 +268,11 @@ export class OpenAI extends BaseAdapter<
         ) {
           responseId = chunk.response.id
           model = chunk.response.model
+          // Reset streaming flags for new response
+          hasStreamedContentDeltas = false
+          hasStreamedReasoningDeltas = false
+          accumulatedContent = ''
+          accumulatedReasoning = ''
           if (chunk.response.error) {
             yield {
               type: 'error',
@@ -269,41 +294,79 @@ export class OpenAI extends BaseAdapter<
             }
           }
         }
+        // Handle output text deltas (token-by-token streaming)
+        // response.output_text.delta provides incremental text updates
+        if (chunk.type === 'response.output_text.delta' && chunk.delta) {
+          // Delta can be an array of strings or a single string
+          const textDelta = Array.isArray(chunk.delta)
+            ? chunk.delta.join('')
+            : typeof chunk.delta === 'string'
+              ? chunk.delta
+              : ''
+
+          if (textDelta) {
+            accumulatedContent += textDelta
+            hasStreamedContentDeltas = true
+            yield {
+              type: 'content',
+              id: responseId || generateId(),
+              model: model || options.model,
+              timestamp,
+              delta: textDelta,
+              content: accumulatedContent,
+              role: 'assistant',
+            }
+          }
+        }
+
+        // Handle reasoning deltas (token-by-token thinking/reasoning streaming)
+        // response.reasoning_text.delta provides incremental reasoning updates
+        if (chunk.type === 'response.reasoning_text.delta' && chunk.delta) {
+          // Delta can be an array of strings or a single string
+          const reasoningDelta = Array.isArray(chunk.delta)
+            ? chunk.delta.join('')
+            : typeof chunk.delta === 'string'
+              ? chunk.delta
+              : ''
+
+          if (reasoningDelta) {
+            accumulatedReasoning += reasoningDelta
+            hasStreamedReasoningDeltas = true
+            yield {
+              type: 'thinking',
+              id: responseId || generateId(),
+              model: model || options.model,
+              timestamp,
+              delta: reasoningDelta,
+              content: accumulatedReasoning,
+            }
+          }
+        }
+
         // handle content_part added events for text, reasoning and refusals
         if (chunk.type === 'response.content_part.added') {
           const contentPart = chunk.part
           yield handleContentPart(contentPart)
         }
 
-        // handle content deltas - this is where streaming happens!
-        if (chunk.type === 'response.output_text.delta') {
-          accumulatedContent += chunk.delta
-          yield {
-            type: 'content',
-            id: responseId || generateId(),
-            model: model || options.model,
-            timestamp,
-            delta: chunk.delta,
-            content: accumulatedContent,
-            role: 'assistant',
-          }
-        }
-
-        if (chunk.type === 'response.reasoning_text.delta') {
-          accumulatedReasoning += chunk.delta
-          yield {
-            type: 'thinking',
-            id: responseId || generateId(),
-            model: model || options.model,
-            timestamp,
-            delta: chunk.delta,
-            content: accumulatedReasoning,
-          }
-        }
-
         if (chunk.type === 'response.content_part.done') {
           const contentPart = chunk.part
 
+          // Skip emitting chunks for content parts that we've already streamed via deltas
+          // The done event is just a completion marker, not new content
+          if (contentPart.type === 'output_text' && hasStreamedContentDeltas) {
+            // Content already accumulated from deltas, skip
+            continue
+          }
+          if (
+            contentPart.type === 'reasoning_text' &&
+            hasStreamedReasoningDeltas
+          ) {
+            // Reasoning already accumulated from deltas, skip
+            continue
+          }
+
+          // Only emit if we haven't been streaming deltas (e.g., for non-streaming responses)
           yield handleContentPart(contentPart)
         }
 
@@ -417,7 +480,7 @@ export class OpenAI extends BaseAdapter<
           | 'top_p'
         >
       | undefined
-    const input = convertMessagesToInput(options.messages)
+    const input = this.convertMessagesToInput(options.messages)
     if (providerOptions) {
       validateTextProviderOptions({ ...providerOptions, input })
     }
@@ -435,12 +498,191 @@ export class OpenAI extends BaseAdapter<
       max_output_tokens: options.options?.maxTokens,
       top_p: options.options?.topP,
       metadata: options.options?.metadata,
+      instructions: options.systemPrompts?.join('\n'),
       ...providerOptions,
       input,
       tools,
     }
 
     return requestParams
+  }
+
+  private convertMessagesToInput(
+    messages: Array<ModelMessage>,
+  ): Responses.ResponseInput {
+    const result: Responses.ResponseInput = []
+
+    for (const message of messages) {
+      // Handle tool messages - convert to FunctionToolCallOutput
+      if (message.role === 'tool') {
+        result.push({
+          type: 'function_call_output',
+          call_id: message.toolCallId || '',
+          output:
+            typeof message.content === 'string'
+              ? message.content
+              : JSON.stringify(message.content),
+        })
+        continue
+      }
+
+      // Handle assistant messages
+      if (message.role === 'assistant') {
+        // If the assistant message has tool calls, add them as FunctionToolCall objects
+        // OpenAI Responses API expects arguments as a string (JSON string)
+        if (message.toolCalls && message.toolCalls.length > 0) {
+          for (const toolCall of message.toolCalls) {
+            // Keep arguments as string for Responses API
+            // Our internal format stores arguments as a JSON string, which is what API expects
+            const argumentsString =
+              typeof toolCall.function.arguments === 'string'
+                ? toolCall.function.arguments
+                : JSON.stringify(toolCall.function.arguments)
+
+            result.push({
+              type: 'function_call',
+              call_id: toolCall.id,
+              name: toolCall.function.name,
+              arguments: argumentsString,
+            })
+          }
+        }
+
+        // Add the assistant's text message if there is content
+        if (message.content) {
+          // Assistant messages are typically text-only
+          const contentStr = this.extractTextContent(message.content)
+          if (contentStr) {
+            result.push({
+              type: 'message',
+              role: 'assistant',
+              content: contentStr,
+            })
+          }
+        }
+
+        continue
+      }
+
+      // Handle user messages (default case) - support multimodal content
+      const contentParts = this.normalizeContent(message.content)
+      const openAIContent: Array<Responses.ResponseInputContent> = []
+
+      for (const part of contentParts) {
+        openAIContent.push(
+          this.convertContentPartToOpenAI(
+            part as ContentPart<
+              OpenAIImageMetadata,
+              OpenAIAudioMetadata,
+              unknown,
+              unknown
+            >,
+          ),
+        )
+      }
+
+      // If no content parts, add empty text
+      if (openAIContent.length === 0) {
+        openAIContent.push({ type: 'input_text', text: '' })
+      }
+
+      result.push({
+        type: 'message',
+        role: 'user',
+        content: openAIContent,
+      })
+    }
+
+    return result
+  }
+
+  /**
+   * Converts a ContentPart to OpenAI input content item.
+   * Handles text, image, and audio content parts.
+   */
+  private convertContentPartToOpenAI(
+    part: ContentPart<
+      OpenAIImageMetadata,
+      OpenAIAudioMetadata,
+      unknown,
+      unknown
+    >,
+  ): Responses.ResponseInputContent {
+    switch (part.type) {
+      case 'text':
+        return {
+          type: 'input_text',
+          text: part.content,
+        }
+      case 'image': {
+        const imageMetadata = part.metadata
+        if (part.source.type === 'url') {
+          return {
+            type: 'input_image',
+            image_url: part.source.value,
+            detail: imageMetadata?.detail || 'auto',
+          }
+        }
+        // For base64 data, construct a data URI
+        return {
+          type: 'input_image',
+          image_url: part.source.value,
+          detail: imageMetadata?.detail || 'auto',
+        }
+      }
+      case 'audio': {
+        if (part.source.type === 'url') {
+          // OpenAI may support audio URLs in the future
+          // For now, treat as data URI
+          return {
+            type: 'input_file',
+            file_url: part.source.value,
+          }
+        }
+        return {
+          type: 'input_file',
+          file_data: part.source.value,
+        }
+      }
+
+      default:
+        throw new Error(`Unsupported content part type: ${part.type}`)
+    }
+  }
+
+  /**
+   * Normalizes message content to an array of ContentPart.
+   * Handles backward compatibility with string content.
+   */
+  private normalizeContent(
+    content: string | null | Array<ContentPart>,
+  ): Array<ContentPart> {
+    if (content === null) {
+      return []
+    }
+    if (typeof content === 'string') {
+      return [{ type: 'text', content: content }]
+    }
+    return content
+  }
+
+  /**
+   * Extracts text content from a content value that may be string, null, or ContentPart array.
+   */
+  private extractTextContent(
+    content: string | null | Array<ContentPart>,
+  ): string {
+    if (content === null) {
+      return ''
+    }
+    if (typeof content === 'string') {
+      return content
+    }
+    // It's an array of ContentPart
+    return content
+      .filter((p) => p.type === 'text')
+      .map((p) => p.content)
+      .join('')
   }
 }
 

@@ -10,33 +10,13 @@ import type {
   AIAdapter,
   AgentLoopStrategy,
   ChatOptions,
-  ChatStreamOptionsUnion,
+  ChatStreamOptionsForModel,
   DoneStreamChunk,
   ModelMessage,
   StreamChunk,
   Tool,
   ToolCall,
 } from '../types'
-
-function prependSystemPrompts(
-  messages: Array<ModelMessage>,
-  systemPrompts?: Array<string>,
-  defaultPrompts: Array<string> = [],
-): Array<ModelMessage> {
-  const prompts =
-    systemPrompts && systemPrompts.length > 0 ? systemPrompts : defaultPrompts
-
-  if (prompts.length === 0) {
-    return messages
-  }
-
-  const systemMessages = prompts.map((content) => ({
-    role: 'system' as const,
-    content,
-  }))
-
-  return [...systemMessages, ...messages]
-}
 
 interface ChatEngineConfig<
   TAdapter extends AIAdapter<any, any, any, any>,
@@ -82,17 +62,13 @@ class ChatEngine<
   constructor(config: ChatEngineConfig<TAdapter, TParams>) {
     this.adapter = config.adapter
     this.params = config.params
-    this.systemPrompts = config.systemPrompts || []
+    this.systemPrompts = config.params.systemPrompts || []
     this.tools = config.params.tools || []
     this.loopStrategy =
       config.params.agentLoopStrategy || maxIterationsStrategy(5)
     this.toolCallManager = new ToolCallManager(this.tools)
     this.initialMessageCount = config.params.messages.length
-    this.messages = prependSystemPrompts(
-      config.params.messages,
-      config.params.systemPrompts,
-      this.systemPrompts,
-    )
+    this.messages = config.params.messages
     this.requestId = this.createId('chat')
     this.streamId = this.createId('stream')
     this.effectiveRequest = config.params.abortController
@@ -218,6 +194,7 @@ class ChatEngine<
       options: adapterOptions,
       request: this.effectiveRequest,
       providerOptions,
+      systemPrompts: this.systemPrompts,
     })) {
       if (this.isAborted()) {
         break
@@ -760,9 +737,10 @@ class ChatEngine<
  * ```
  */
 export async function* chat<
-  TAdapter extends AIAdapter<any, any, any, any, any>,
+  TAdapter extends AIAdapter<any, any, any, any, any, any>,
   const TModel extends TAdapter extends AIAdapter<
     infer Models,
+    any,
     any,
     any,
     any,
@@ -771,24 +749,7 @@ export async function* chat<
     ? Models[number]
     : string,
 >(
-  options: Omit<
-    ChatStreamOptionsUnion<TAdapter>,
-    'providerOptions' | 'model' | 'adapter'
-  > & {
-    adapter: TAdapter
-    model: TModel
-    providerOptions?: TAdapter extends AIAdapter<
-      any,
-      any,
-      any,
-      any,
-      infer ModelProviderOptions
-    >
-      ? TModel extends keyof ModelProviderOptions
-        ? ModelProviderOptions[TModel]
-        : never
-      : never
-  },
+  options: ChatStreamOptionsForModel<TAdapter, TModel>,
 ): AsyncIterable<StreamChunk> {
   const { adapter, ...chatOptions } = options
 

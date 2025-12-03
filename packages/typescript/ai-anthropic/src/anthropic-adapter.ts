@@ -4,7 +4,12 @@ import { ANTHROPIC_MODELS } from './model-meta'
 import { convertToolsToProviderFormat } from './tools/tool-converter'
 import { validateTextProviderOptions } from './text/text-provider-options'
 import type {
+  AnthropicImageMetadata,
+  AnthropicMessageMetadataByModality,
+} from './message-types'
+import type {
   ChatOptions,
+  ContentPart,
   EmbeddingOptions,
   EmbeddingResult,
   ModelMessage,
@@ -12,12 +17,24 @@ import type {
   SummarizationOptions,
   SummarizationResult,
 } from '@tanstack/ai'
-import type { AnthropicChatModelProviderOptionsByName } from './model-meta'
+import type {
+  AnthropicChatModelProviderOptionsByName,
+  AnthropicModelInputModalitiesByName,
+} from './model-meta'
 import type {
   ExternalTextProviderOptions,
   InternalTextProviderOptions,
 } from './text/text-provider-options'
-import type { MessageParam } from '@anthropic-ai/sdk/resources/messages'
+import type {
+  Base64ImageSource,
+  Base64PDFSource,
+  DocumentBlockParam,
+  ImageBlockParam,
+  MessageParam,
+  TextBlockParam,
+  URLImageSource,
+  URLPDFSource,
+} from '@anthropic-ai/sdk/resources/messages'
 
 export interface AnthropicConfig {
   apiKey: string
@@ -41,12 +58,16 @@ export class Anthropic extends BaseAdapter<
   [],
   AnthropicProviderOptions,
   Record<string, any>,
-  AnthropicChatModelProviderOptionsByName
+  AnthropicChatModelProviderOptionsByName,
+  AnthropicModelInputModalitiesByName,
+  AnthropicMessageMetadataByModality
 > {
   name = 'anthropic' as const
   models = ANTHROPIC_MODELS
 
   declare _modelProviderOptionsByName: AnthropicChatModelProviderOptionsByName
+  declare _modelInputModalitiesByName: AnthropicModelInputModalitiesByName
+  declare _messageMetadataByModality: AnthropicMessageMetadataByModality
 
   private client: Anthropic_SDK
 
@@ -224,11 +245,74 @@ export class Anthropic extends BaseAdapter<
       temperature: options.options?.temperature,
       top_p: options.options?.topP,
       messages: formattedMessages,
+      system: options.systemPrompts?.join('\n'),
       tools: tools,
       ...validProviderOptions,
     }
     validateTextProviderOptions(requestParams)
     return requestParams
+  }
+
+  private convertContentPartToAnthropic(
+    part: ContentPart,
+  ): TextBlockParam | ImageBlockParam | DocumentBlockParam {
+    switch (part.type) {
+      case 'text':
+        return {
+          type: 'text',
+          text: part.content,
+        }
+      case 'image': {
+        const metadata = part.metadata as any as
+          | AnthropicImageMetadata
+          | undefined
+        const imageSource: Base64ImageSource | URLImageSource =
+          part.source.type === 'data'
+            ? {
+                type: 'base64',
+                data: part.source.value,
+                media_type: metadata?.mediaType ?? 'image/jpeg',
+              }
+            : {
+                type: 'url',
+                url: part.source.value,
+              }
+        return {
+          type: 'image',
+          source: imageSource,
+        }
+      }
+      case 'document': {
+        const docSource: Base64PDFSource | URLPDFSource =
+          part.source.type === 'data'
+            ? {
+                type: 'base64',
+                data: part.source.value,
+                media_type: 'application/pdf',
+              }
+            : {
+                type: 'url',
+                url: part.source.value,
+              }
+        return {
+          type: 'document',
+          source: docSource,
+        }
+      }
+      case 'audio':
+      case 'video':
+        // Anthropic doesn't support audio/video directly, treat as text with a note
+        throw new Error(
+          `Anthropic does not support ${part.type} content directly`,
+        )
+      default: {
+        // Exhaustive check - this should never happen with known types
+        const _exhaustiveCheck: never = part
+        throw new Error(
+          `Unsupported content part type: ${(_exhaustiveCheck as ContentPart).type}`,
+        )
+      }
+    }
   }
 
   private formatMessages(
@@ -239,10 +323,6 @@ export class Anthropic extends BaseAdapter<
     for (const message of messages) {
       const role = message.role
 
-      if (role === 'system') {
-        continue
-      }
-
       if (role === 'tool' && message.toolCallId) {
         formattedMessages.push({
           role: 'user',
@@ -250,7 +330,8 @@ export class Anthropic extends BaseAdapter<
             {
               type: 'tool_result',
               tool_use_id: message.toolCallId,
-              content: message.content ?? '',
+              content:
+                typeof message.content === 'string' ? message.content : '',
             },
           ],
         })
@@ -261,9 +342,11 @@ export class Anthropic extends BaseAdapter<
         const contentBlocks: AnthropicContentBlocks = []
 
         if (message.content) {
+          const content =
+            typeof message.content === 'string' ? message.content : ''
           const textBlock: AnthropicContentBlock = {
             type: 'text',
-            text: message.content,
+            text: content,
           }
           contentBlocks.push(textBlock)
         }
@@ -295,9 +378,28 @@ export class Anthropic extends BaseAdapter<
         continue
       }
 
+      // Handle user messages with multimodal content
+      if (role === 'user' && Array.isArray(message.content)) {
+        const contentBlocks = message.content.map((part) =>
+          this.convertContentPartToAnthropic(part),
+        )
+        formattedMessages.push({
+          role: 'user',
+          content: contentBlocks,
+        })
+        continue
+      }
+
       formattedMessages.push({
         role: role === 'assistant' ? 'assistant' : 'user',
-        content: message.content ?? '',
+        content:
+          typeof message.content === 'string'
+            ? message.content
+            : message.content
+              ? message.content.map((c) =>
+                  this.convertContentPartToAnthropic(c),
+                )
+              : '',
       })
     }
 
@@ -415,24 +517,82 @@ export class Anthropic extends BaseAdapter<
           }
         } else if (event.type === 'message_delta') {
           if (event.delta.stop_reason) {
-            yield {
-              type: 'done',
-              id: generateId(),
-              model: model,
-              timestamp,
-              finishReason:
-                event.delta.stop_reason === 'tool_use'
-                  ? 'tool_calls'
-                  : // TODO Fix the any and map the responses properly
-                    (event.delta.stop_reason as any),
+            switch (event.delta.stop_reason) {
+              case 'tool_use': {
+                yield {
+                  type: 'done',
+                  id: generateId(),
+                  model: model,
+                  timestamp,
+                  finishReason: 'tool_calls',
 
-              usage: {
-                promptTokens: event.usage.input_tokens || 0,
-                completionTokens: event.usage.output_tokens || 0,
-                totalTokens:
-                  (event.usage.input_tokens || 0) +
-                  (event.usage.output_tokens || 0),
-              },
+                  usage: {
+                    promptTokens: event.usage.input_tokens || 0,
+                    completionTokens: event.usage.output_tokens || 0,
+                    totalTokens:
+                      (event.usage.input_tokens || 0) +
+                      (event.usage.output_tokens || 0),
+                  },
+                }
+                break
+              }
+              case 'max_tokens': {
+                yield {
+                  type: 'error',
+                  id: generateId(),
+                  model: model,
+                  timestamp,
+                  error: {
+                    message:
+                      'The response was cut off because the maximum token limit was reached.',
+                    code: 'max_tokens',
+                  },
+                }
+                break
+              }
+              case 'model_context_window_exceeded': {
+                yield {
+                  type: 'error',
+                  id: generateId(),
+                  model: model,
+                  timestamp,
+                  error: {
+                    message:
+                      "The response was cut off because the model's context window was exceeded.",
+                    code: 'context_window_exceeded',
+                  },
+                }
+                break
+              }
+              case 'refusal': {
+                yield {
+                  type: 'error',
+                  id: generateId(),
+                  model: model,
+                  timestamp,
+                  error: {
+                    message: 'The model refused to complete the request.',
+                    code: 'refusal',
+                  },
+                }
+                break
+              }
+              default: {
+                yield {
+                  type: 'done',
+                  id: generateId(),
+                  model: model,
+                  timestamp,
+                  finishReason: 'stop',
+                  usage: {
+                    promptTokens: event.usage.input_tokens || 0,
+                    completionTokens: event.usage.output_tokens || 0,
+                    totalTokens:
+                      (event.usage.input_tokens || 0) +
+                      (event.usage.output_tokens || 0),
+                  },
+                }
+              }
             }
           }
         }
@@ -461,7 +621,6 @@ export class Anthropic extends BaseAdapter<
     }
   }
 }
-
 /**
  * Creates an Anthropic adapter with simplified configuration
  * @param apiKey - Your Anthropic API key
