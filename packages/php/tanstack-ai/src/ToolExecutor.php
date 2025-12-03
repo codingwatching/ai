@@ -37,20 +37,30 @@ class ToolExecutor
             $toolMap[$tool->name] = $tool;
         }
 
+        error_log('[ToolExecutor] executeToolCalls: processing ' . count($toolCalls) . ' tool calls');
+        error_log('[ToolExecutor] executeToolCalls: available tools: ' . implode(', ', array_keys($toolMap)));
+        
         foreach ($toolCalls as $toolCall) {
             $toolName = $toolCall['function']['name'] ?? '';
+            $toolCallId = $toolCall['id'] ?? '';
+            error_log("[ToolExecutor] executeToolCalls: processing tool call id={$toolCallId}, name={$toolName}");
+            error_log("[ToolExecutor] executeToolCalls: tool call data: " . json_encode($toolCall));
+            
             $tool = $toolMap[$toolName] ?? null;
 
             if (!$tool) {
+                error_log("[ToolExecutor] executeToolCalls: ERROR - Unknown tool: {$toolName}");
                 // Unknown tool - return error
                 $results[] = [
-                    'toolCallId' => $toolCall['id'] ?? '',
+                    'toolCallId' => $toolCallId,
                     'toolName' => $toolName,
                     'result' => ['error' => "Unknown tool: {$toolName}"],
                     'state' => 'output-error',
                 ];
                 continue;
             }
+            
+            error_log("[ToolExecutor] executeToolCalls: found tool '{$toolName}', has execute=" . ($tool->execute ? 'yes' : 'no') . ", needsApproval=" . ($tool->needsApproval ? 'yes' : 'no'));
 
             // Parse arguments
             $argsStr = trim($toolCall['function']['arguments'] ?? '{}');
@@ -201,10 +211,19 @@ class ToolExecutor
             }
 
             // CASE 3: Normal server tool - execute immediately
+            error_log("[ToolExecutor] executeToolCalls: executing server tool '{$toolName}' immediately");
+            error_log("[ToolExecutor] executeToolCalls: tool input: " . json_encode($input));
             $startTime = microtime(true);
             try {
                 $result = call_user_func($tool->execute, $input);
                 $duration = (int)((microtime(true) - $startTime) * 1000);
+                error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' completed in {$duration}ms");
+                error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' result type: " . gettype($result));
+                if (is_string($result)) {
+                    error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' result (first 500 chars): " . substr($result, 0, 500));
+                } else {
+                    error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' result: " . json_encode($result));
+                }
 
                 // Handle async results
                 if ($result instanceof \Generator) {
@@ -219,6 +238,9 @@ class ToolExecutor
                 ];
             } catch (\Exception $e) {
                 $duration = (int)((microtime(true) - $startTime) * 1000);
+                error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' ERROR: " . $e->getMessage());
+                error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' ERROR File: " . $e->getFile() . ':' . $e->getLine());
+                error_log("[ToolExecutor] executeToolCalls: tool '{$toolName}' ERROR Trace: " . $e->getTraceAsString());
                 $results[] = [
                     'toolCallId' => $toolCall['id'],
                     'toolName' => $toolName,
@@ -229,6 +251,8 @@ class ToolExecutor
             }
         }
 
+        error_log('[ToolExecutor] executeToolCalls: completed - results=' . count($results) . ', needsApproval=' . count($needsApproval) . ', needsClientExecution=' . count($needsClientExecution));
+        
         return [
             'results' => $results,
             'needsApproval' => $needsApproval,

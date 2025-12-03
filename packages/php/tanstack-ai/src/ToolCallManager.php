@@ -115,14 +115,23 @@ class ToolCallManager
     {
         $completeCalls = [];
         
-        foreach ($this->toolCallsMap as $toolCall) {
+        error_log('[ToolCallManager] getToolCalls: checking ' . count($this->toolCallsMap) . ' tool calls in map');
+        
+        foreach ($this->toolCallsMap as $index => $toolCall) {
             $id = $toolCall['id'] ?? null;
             $name = $toolCall['function']['name'] ?? null;
             
+            error_log("[ToolCallManager] getToolCalls: checking call [{$index}] id=" . ($id ?? 'null') . ", name=" . ($name ?? 'null'));
+            
             if ($id && $name && trim($name) !== '') {
+                error_log("[ToolCallManager] getToolCalls: adding complete call [{$index}]");
                 $completeCalls[] = $toolCall;
+            } else {
+                error_log("[ToolCallManager] getToolCalls: skipping incomplete call [{$index}]");
             }
         }
+        
+        error_log('[ToolCallManager] getToolCalls: returning ' . count($completeCalls) . ' complete calls');
         
         return $completeCalls;
     }

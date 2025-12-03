@@ -286,14 +286,27 @@ class ChatEngine
 
         // Add tools if available
         if (!empty($this->tools)) {
-            $streamParams['tools'] = MessageFormatters::formatToolsForAnthropic($this->tools);
+            $formattedTools = MessageFormatters::formatToolsForAnthropic($this->tools);
+            error_log('[ChatEngine] streamAnthropic: adding ' . count($this->tools) . ' tools to request');
+            error_log('[ChatEngine] streamAnthropic: formatted tools: ' . json_encode($formattedTools));
+            $streamParams['tools'] = $formattedTools;
+        } else {
+            error_log('[ChatEngine] streamAnthropic: no tools available');
         }
 
         $stream = $this->anthropicClient->messages->createStream(...$streamParams);
 
         foreach ($stream as $event) {
+            // Log raw event from Anthropic API
+            $eventData = is_object($event) ? json_decode(json_encode($event), true) : $event;
+            error_log('[ChatEngine] streamAnthropic: RAW EVENT from API: ' . json_encode($eventData));
+            
             $chunks = $converter->convertEvent($event);
-            foreach ($chunks as $chunk) {
+            
+            // Log converted chunks
+            error_log('[ChatEngine] streamAnthropic: converted to ' . count($chunks) . ' chunk(s)');
+            foreach ($chunks as $idx => $chunk) {
+                error_log('[ChatEngine] streamAnthropic: chunk[' . $idx . ']: ' . json_encode($chunk));
                 yield $chunk;
             }
         }
@@ -363,11 +376,23 @@ class ChatEngine
                     $this->accumulatedContent = $chunk['content'] ?? '';
                     break;
                 case 'tool_call':
-                    error_log("[ChatEngine] handleStreamChunk: tool_call chunk: " . json_encode($chunk));
+                    error_log("[ChatEngine] handleStreamChunk: tool_call chunk received!");
+                    error_log("[ChatEngine] handleStreamChunk: tool_call chunk details: " . json_encode($chunk));
                     $this->toolCallManager->addToolCallChunk($chunk);
+                    // Log state after adding
+                    $currentToolCalls = $this->toolCallManager->getToolCalls();
+                    error_log("[ChatEngine] handleStreamChunk: toolCallManager now has " . count($currentToolCalls) . " tool calls");
                     break;
                 case 'done':
-                    error_log("[ChatEngine] handleStreamChunk: done chunk, finishReason=" . ($chunk['finishReason'] ?? 'null'));
+                    error_log("[ChatEngine] handleStreamChunk: done chunk received");
+                    error_log("[ChatEngine] handleStreamChunk: done chunk details: " . json_encode($chunk));
+                    error_log("[ChatEngine] handleStreamChunk: finishReason=" . ($chunk['finishReason'] ?? 'null'));
+                    // Log tool call state when done chunk arrives
+                    $finalToolCalls = $this->toolCallManager->getToolCalls();
+                    error_log("[ChatEngine] handleStreamChunk: at done chunk, toolCallManager has " . count($finalToolCalls) . " tool calls");
+                    if (!empty($finalToolCalls)) {
+                        error_log("[ChatEngine] handleStreamChunk: tool calls at done: " . json_encode($finalToolCalls));
+                    }
                     $this->handleDoneChunk($chunk);
                     break;
                 case 'error':
@@ -542,12 +567,33 @@ class ChatEngine
      */
     private function shouldExecuteToolPhase(): bool
     {
-        return (
-            $this->doneChunk &&
-            ($this->doneChunk['finishReason'] ?? null) === 'tool_calls' &&
-            !empty($this->tools) &&
-            $this->toolCallManager->hasToolCalls()
+        $hasDoneChunk = (bool)$this->doneChunk;
+        $finishReason = $this->doneChunk['finishReason'] ?? null;
+        $isToolCallsFinishReason = $finishReason === 'tool_calls';
+        $hasTools = !empty($this->tools);
+        $hasToolCalls = $this->toolCallManager->hasToolCalls();
+        $toolCalls = $this->toolCallManager->getToolCalls();
+        
+        error_log('[ChatEngine] shouldExecuteToolPhase:');
+        error_log('  - hasDoneChunk: ' . ($hasDoneChunk ? 'true' : 'false'));
+        error_log('  - finishReason: ' . ($finishReason ?? 'null'));
+        error_log('  - isToolCallsFinishReason: ' . ($isToolCallsFinishReason ? 'true' : 'false'));
+        error_log('  - hasTools: ' . ($hasTools ? 'true' : 'false') . ' (count=' . count($this->tools) . ')');
+        error_log('  - hasToolCalls: ' . ($hasToolCalls ? 'true' : 'false') . ' (count=' . count($toolCalls) . ')');
+        if (!empty($toolCalls)) {
+            error_log('  - toolCalls: ' . json_encode($toolCalls));
+        }
+        
+        $result = (
+            $hasDoneChunk &&
+            $isToolCallsFinishReason &&
+            $hasTools &&
+            $hasToolCalls
         );
+        
+        error_log('  - result: ' . ($result ? 'true' : 'false'));
+        
+        return $result;
     }
 
     /**

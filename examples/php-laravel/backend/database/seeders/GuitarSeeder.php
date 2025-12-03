@@ -20,26 +20,41 @@ class GuitarSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get or create currency (USD)
-        $currency = Currency::firstOrCreate(
-            ['code' => 'USD'],
-            [
+        // Get or create currency (USD) - use DB facade to avoid Laravel 11 compatibility issues
+        $currencyId = \DB::table('lunar_currencies')->where('code', 'USD')->value('id');
+        if (!$currencyId) {
+            $currencyId = \DB::table('lunar_currencies')->insertGetId([
+                'code' => 'USD',
                 'name' => 'US Dollar',
                 'exchange_rate' => 1.0,
                 'decimal_places' => 2,
                 'enabled' => true,
-            ]
-        );
+                'default' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
-        // Get or create tax class
-        $taxClass = TaxClass::firstOrCreate(
-            ['name' => 'Standard Tax']
-        );
+        // Get or create tax class - use DB facade
+        $taxClassId = \DB::table('lunar_tax_classes')->where('name', 'Standard Tax')->value('id');
+        if (!$taxClassId) {
+            $taxClassId = \DB::table('lunar_tax_classes')->insertGetId([
+                'name' => 'Standard Tax',
+                'default' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
-        // Get or create product type
-        $productType = ProductType::firstOrCreate(
-            ['name' => 'Guitar']
-        );
+        // Get or create product type - use DB facade
+        $productTypeId = \DB::table('lunar_product_types')->where('name', 'Guitar')->value('id');
+        if (!$productTypeId) {
+            $productTypeId = \DB::table('lunar_product_types')->insertGetId([
+                'name' => 'Guitar',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         // Define guitar products
         $guitars = [
@@ -126,7 +141,7 @@ class GuitarSeeder extends Seeder
             try {
                 $productId = \DB::table('lunar_products')->insertGetId([
                     'status' => 'published',
-                    'product_type_id' => $productType->id,
+                    'product_type_id' => $productTypeId,
                     'attribute_data' => json_encode([
                         'name' => [
                             'en' => $guitar['name'],
@@ -154,7 +169,7 @@ class GuitarSeeder extends Seeder
             try {
                 $variantId = \DB::table('lunar_product_variants')->insertGetId([
                     'product_id' => $product->id,
-                    'tax_class_id' => $taxClass->id,
+                    'tax_class_id' => $taxClassId,
                     'sku' => 'GUITAR-' . strtoupper(str_replace(' ', '-', $guitar['name'])),
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -169,7 +184,7 @@ class GuitarSeeder extends Seeder
             try {
                 \DB::table('lunar_prices')->insert([
                     'price' => $guitar['price'],
-                    'currency_id' => $currency->id,
+                    'currency_id' => $currencyId,
                     'priceable_type' => ProductVariant::class,
                     'priceable_id' => $variant->id,
                     'created_at' => now(),
@@ -180,28 +195,9 @@ class GuitarSeeder extends Seeder
                 continue;
             }
 
-            // Attach image (skip if product creation failed)
-            if (!$product) {
-                continue;
-            }
-            
-            $imagePath = $targetImagePath . '/' . $guitar['image'];
-            if (File::exists($imagePath)) {
-                try {
-                    $media = $product->addMedia($imagePath)
-                        ->preservingOriginal()
-                        ->toMediaCollection('images');
-
-                    // Set first image as thumbnail
-                    if ($media && is_object($media) && property_exists($media, 'id')) {
-                        $product->thumbnail_id = $media->id;
-                        $product->save();
-                    }
-                } catch (\Exception $e) {
-                    // Continue even if image attachment fails
-                    $this->command->warn("Failed to attach image for {$guitar['name']}: " . $e->getMessage());
-                }
-            }
+            // Skip media attachment due to Laravel 11 compatibility issues with Lunar media library
+            // The images are still copied to storage/app/public/products for manual attachment if needed
+            // Products are created successfully without media attachments
         }
 
         $this->command->info('Guitar products seeded successfully!');
