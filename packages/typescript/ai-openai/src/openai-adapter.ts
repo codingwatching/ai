@@ -554,7 +554,12 @@ export class OpenAI extends BaseAdapter<
    * Handles text, image, and audio content parts.
    */
   private convertContentPartToOpenAI(
-    part: ContentPart<OpenAIImageMetadata, OpenAIAudioMetadata, unknown, unknown>,
+    part: ContentPart<
+      OpenAIImageMetadata,
+      OpenAIAudioMetadata,
+      unknown,
+      unknown
+    >,
   ): Responses.ResponseInputContent {
     switch (part.type) {
       case 'text':
