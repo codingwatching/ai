@@ -8,6 +8,14 @@ cd "$SCRIPT_DIR"
 
 echo "🔧 Setting up Laravel environment..."
 
+# Check if composer dependencies are installed
+if [ ! -f vendor/autoload.php ]; then
+    echo "❌ ERROR: Composer dependencies not installed!"
+    echo "   Please run 'composer install' or 'pnpm run backend:install' first."
+    echo "   Or run 'pnpm run setup' which will install dependencies automatically."
+    exit 1
+fi
+
 # Copy .env.example to .env if .env doesn't exist
 if [ ! -f .env ]; then
     if [ ! -f .env.example ]; then
@@ -45,90 +53,58 @@ echo "📦 Publishing Lunar configuration..."
 php artisan vendor:publish --tag=lunar --force
 
 echo "🚀 Running database migrations..."
-# Check if migrations have already been run by checking if lunar tables exist
-MIGRATE_STATUS_OUTPUT=$(php artisan migrate:status 2>&1)
-if echo "$MIGRATE_STATUS_OUTPUT" | grep -q "Ran"; then
-    echo "✅ Migrations have already been run, skipping..."
-elif echo "$MIGRATE_STATUS_OUTPUT" | grep -q "getTable does not exist"; then
-    echo "⚠️  Detected Lunar/Laravel 11 compatibility issue (getTable error)."
-    echo "   Checking if migrations have already been applied..."
-    # Check if key Lunar tables exist
-    if [ -f database/database.sqlite ]; then
-        TABLES=$(sqlite3 database/database.sqlite "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'lunar_%';" 2>/dev/null | wc -l | tr -d ' ')
-        if [ "$TABLES" -gt 0 ]; then
-            echo "✅ Found $TABLES Lunar tables - migrations appear to have run successfully"
-        else
-            echo "❌ No Lunar tables found. This is a known compatibility issue."
-            echo "   Please try running migrations manually: php artisan migrate"
-            echo "   Or check Lunar documentation for Laravel 11 compatibility updates."
-        fi
+# Always try to run migrations - Laravel will skip if already run
+MIGRATE_OUTPUT=$(php artisan migrate --force 2>&1)
+MIGRATE_EXIT=$?
+
+# Filter out harmless Lunar/Laravel 11 compatibility warnings
+echo "$MIGRATE_OUTPUT" | grep -v "getTable does not exist" || true
+
+# Verify migrations succeeded by checking for Lunar tables
+if [ -f database/database.sqlite ]; then
+    TABLES=$(sqlite3 database/database.sqlite "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'lunar_%';" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$TABLES" -gt 0 ]; then
+        echo "✅ Migrations complete - found $TABLES Lunar tables"
+    elif [ $MIGRATE_EXIT -ne 0 ]; then
+        echo "❌ ERROR: Migrations failed and no Lunar tables found!"
+        echo "   Check the migration output above for errors."
+        exit 1
     fi
 else
-    # Try to run migrations
-    php artisan migrate --force 2>&1
-    MIGRATE_EXIT=$?
-    if [ $MIGRATE_EXIT -ne 0 ]; then
-        echo "⚠️  Migration encountered an error (exit code: $MIGRATE_EXIT). Checking if tables exist..."
-        if [ -f database/database.sqlite ]; then
-            TABLES=$(sqlite3 database/database.sqlite "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'lunar_%';" 2>/dev/null | wc -l | tr -d ' ')
-            if [ "$TABLES" -gt 0 ]; then
-                echo "✅ Found $TABLES Lunar tables - migrations appear to have run successfully"
-            fi
-        fi
-    fi
+    echo "❌ ERROR: Database file not found after migrations!"
+    exit 1
 fi
 
 echo "🔗 Creating storage link..."
 php artisan storage:link --force 2>&1 || echo "⚠️  Storage link may already exist, continuing..."
 
 echo "🌱 Seeding guitar products..."
-# Check if products already exist before seeding
+# Always delete existing products and reseed for a clean, reliable setup
+if [ -f database/database.sqlite ]; then
+    echo "   Clearing existing products..."
+    sqlite3 database/database.sqlite "DELETE FROM lunar_products;" 2>/dev/null || true
+fi
+
+echo "   Running seeder (ignoring harmless Lunar/Laravel 11 compatibility warnings)..."
+# Run seeder and filter out known harmless errors/warnings
+SEED_OUTPUT=$(php artisan db:seed --class=GuitarSeeder 2>&1)
+echo "$SEED_OUTPUT" | grep -v "originalFileName does not exist" | grep -v "CauserResolver" | grep -v "getTable does not exist" | grep -v "Trying to access array offset" || true
+
+# Verify products were created
+sleep 1  # Give DB a moment to commit
 if [ -f database/database.sqlite ]; then
     PRODUCT_COUNT=$(sqlite3 database/database.sqlite "SELECT COUNT(*) FROM lunar_products;" 2>/dev/null | tr -d ' ' || echo "0")
-    if [ "$PRODUCT_COUNT" -gt 0 ] && [ "$PRODUCT_COUNT" != "0" ]; then
-        echo "✅ Found $PRODUCT_COUNT products in database. Skipping seed."
+    if [ "$PRODUCT_COUNT" -gt 0 ]; then
+        echo "✅ Successfully seeded $PRODUCT_COUNT products!"
     else
-        echo "   Note: You may see errors about 'getTable' or 'CauserResolver' - these are harmless Lunar/Laravel 11 compatibility issues."
-        # Run seeder and capture output, but don't fail on error (Laravel 11 compatibility issues cause false errors)
-        SEED_OUTPUT=$(php artisan db:seed --class=GuitarSeeder 2>&1 || true)
-        # Filter out known harmless errors/warnings
-        echo "$SEED_OUTPUT" | grep -v "originalFileName does not exist" | grep -v "CauserResolver" | grep -v "getTable does not exist" | grep -v "Trying to access array offset" || true
-        
-        # Always check if products were actually created, regardless of error messages
-        sleep 1  # Give a moment for DB to commit
-        NEW_COUNT=$(sqlite3 database/database.sqlite "SELECT COUNT(*) FROM lunar_products;" 2>/dev/null | tr -d ' ' || echo "0")
-        if [ "$NEW_COUNT" -gt 0 ]; then
-            echo "✅ Successfully seeded $NEW_COUNT products!"
-        elif echo "$SEED_OUTPUT" | grep -q "Guitar products seeded successfully"; then
-            # Double-check if seeder said it succeeded
-            FINAL_COUNT=$(sqlite3 database/database.sqlite "SELECT COUNT(*) FROM lunar_products;" 2>/dev/null | tr -d ' ' || echo "0")
-            if [ "$FINAL_COUNT" -gt 0 ]; then
-                echo "✅ Successfully seeded $FINAL_COUNT products!"
-            else
-                echo "⚠️  Seeder reported success but no products found. This may be a timing issue."
-                echo "   Try running manually: php artisan db:seed --class=GuitarSeeder"
-            fi
-        else
-            echo "⚠️  Seeder encountered errors. Checking if any products were created..."
-            FINAL_COUNT=$(sqlite3 database/database.sqlite "SELECT COUNT(*) FROM lunar_products;" 2>/dev/null | tr -d ' ' || echo "0")
-            if [ "$FINAL_COUNT" -gt 0 ]; then
-                echo "✅ Found $FINAL_COUNT products - seeding succeeded despite error messages!"
-            else
-                echo "❌ No products found. The errors may be preventing seeding."
-                echo "   Try running manually: php artisan db:seed --class=GuitarSeeder"
-            fi
-        fi
+        echo "❌ ERROR: Seeder completed but no products found in database!"
+        echo "   This indicates a problem with the seeding process."
+        echo "   Check the seeder output above for errors."
+        exit 1
     fi
 else
-    echo "   Note: You may see errors about 'getTable' or 'CauserResolver' - these are harmless Lunar/Laravel 11 compatibility issues."
-    php artisan db:seed --class=GuitarSeeder 2>&1 | grep -v "originalFileName does not exist" | grep -v "CauserResolver" | grep -v "getTable does not exist" | grep -v "Trying to access array offset" || true
-    sleep 1
-    FINAL_COUNT=$(sqlite3 database/database.sqlite "SELECT COUNT(*) FROM lunar_products;" 2>/dev/null | tr -d ' ' || echo "0")
-    if [ "$FINAL_COUNT" -gt 0 ]; then
-        echo "✅ Successfully seeded $FINAL_COUNT products!"
-    else
-        echo "⚠️  Seeder completed but no products found. Check manually."
-    fi
+    echo "❌ ERROR: Database file not found after seeding!"
+    exit 1
 fi
 
 echo "✅ Database setup complete!"

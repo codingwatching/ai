@@ -10,7 +10,7 @@
     "frontend:install": "cd frontend && pnpm install",
     "frontend:dev": "cd frontend && pnpm dev",
     "setup": "pnpm run backend:install && pnpm run frontend:install && pnpm run backend:setup",
-    "dev": "concurrently \"pnpm run backend:start\" \"pnpm run frontend:dev\" --names \"backend,frontend\" --prefix-colors \"blue,green\""
+    "start": "concurrently \"pnpm run backend:start\" \"pnpm run frontend:dev\" --names \"backend,frontend\" --prefix-colors \"blue,green\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

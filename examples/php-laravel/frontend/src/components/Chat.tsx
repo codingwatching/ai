@@ -65,12 +65,24 @@ function Chat() {
                   )
                 }
                 if (part.type === 'tool-call') {
+                  let parsedArgs = null
+                  try {
+                    parsedArgs = part.arguments
+                      ? JSON.parse(part.arguments)
+                      : null
+                  } catch (e) {
+                    console.error(
+                      'Failed to parse tool arguments:',
+                      part.arguments,
+                      e,
+                    )
+                  }
                   return (
                     <div key={index} className="tool-call-part">
                       <strong>Tool Call:</strong> {part.name}
-                      {part.arguments && (
+                      {parsedArgs && (
                         <pre className="tool-args">
-                          {JSON.stringify(JSON.parse(part.arguments), null, 2)}
+                          {JSON.stringify(parsedArgs, null, 2)}
                         </pre>
                       )}
                       {part.output && (

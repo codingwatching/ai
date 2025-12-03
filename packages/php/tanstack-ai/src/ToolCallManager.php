@@ -80,12 +80,12 @@ class ToolCallManager
                     $existing['function']['name'] = $toolCall['function']['name'];
                 }
                 
-                // Accumulate arguments for streaming tool calls
-                if (!empty($toolCall['function']['arguments'])) {
-                    $existing['function']['arguments'] .= $toolCall['function']['arguments'];
+                // Replace arguments - StreamChunkConverter already accumulates, so we just take the latest
+                if (isset($toolCall['function']['arguments'])) {
+                    $existing['function']['arguments'] = $toolCall['function']['arguments'];
                 }
                 
-                error_log("[ToolCallManager] addToolCallChunk: updating existing tool call [{$index}]");
+                error_log("[ToolCallManager] addToolCallChunk: updating existing tool call [{$index}], args=" . substr($existing['function']['arguments'], 0, 50) . (strlen($existing['function']['arguments']) > 50 ? '...' : ''));
                 $this->toolCallsMap[$index] = $existing;
             }
         } catch (\Throwable $e) {

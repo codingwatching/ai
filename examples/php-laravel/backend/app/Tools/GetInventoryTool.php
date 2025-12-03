@@ -42,23 +42,12 @@ class GetInventoryTool
                 'required' => [],
             ],
             execute: function (array $args): array {
-                $query = $args['query'] ?? null;
-                $limit = $args['limit'] ?? 10;
-
-                $productsQuery = Product::with(['variants' => function ($q) {
+                // Just return all products - let the LLM figure out what's relevant
+                $products = Product::with(['variants' => function ($q) {
                     $q->with('prices');
                 }])
-                    ->where('status', 'published');
-
-                // Apply search query if provided
-                if ($query) {
-                    $productsQuery->where(function ($q) use ($query) {
-                        $q->whereRaw('JSON_EXTRACT(attribute_data, "$.name.en") LIKE ?', ["%{$query}%"])
-                          ->orWhereRaw('JSON_EXTRACT(attribute_data, "$.description.en") LIKE ?', ["%{$query}%"]);
-                    });
-                }
-
-                $products = $productsQuery->limit($limit)->get();
+                    ->where('status', 'published')
+                    ->get();
 
                 // Format products for response
                 $formattedProducts = $products->map(function ($product) {
@@ -93,7 +82,6 @@ class GetInventoryTool
                 return [
                     'products' => $formattedProducts,
                     'count' => count($formattedProducts),
-                    'query' => $query,
                 ];
             },
             needsApproval: false

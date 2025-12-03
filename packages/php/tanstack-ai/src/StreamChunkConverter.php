@@ -65,25 +65,42 @@ class StreamChunkConverter
     public function convertAnthropicEvent(mixed $event): array
     {
         $chunks = [];
+        
+        // CRITICAL: Normalize event to array first - Anthropic SDK returns objects
+        // that may have different property access patterns
+        if (is_object($event)) {
+            $event = json_decode(json_encode($event), true);
+        }
+        
         $eventType = $this->getEventType($event);
         
         // Log the event being processed
-        $eventData = is_object($event) ? json_decode(json_encode($event), true) : $event;
-        error_log('[StreamChunkConverter] convertAnthropicEvent: processing event type=' . $eventType . ', data=' . json_encode($eventData));
+        error_log('[StreamChunkConverter] convertAnthropicEvent: processing event type=' . $eventType . ', data=' . json_encode($event));
 
         if ($eventType === 'content_block_start') {
             // Tool call is starting
             $contentBlock = $this->getAttr($event, 'content_block');
             $index = $this->getAttr($event, 'index', -1);
             
-            if ($contentBlock && $this->getAttr($contentBlock, 'type') === 'tool_use') {
+            error_log('[StreamChunkConverter] content_block_start: contentBlock=' . json_encode($contentBlock) . ', index=' . $index);
+            
+            $blockType = $contentBlock ? $this->getAttr($contentBlock, 'type') : null;
+            error_log('[StreamChunkConverter] content_block_start: blockType=' . ($blockType ?? 'null'));
+            
+            if ($contentBlock && $blockType === 'tool_use') {
                 // Use the index from the event, not an incrementing counter
+                $toolId = $this->getAttr($contentBlock, 'id');
+                $toolName = $this->getAttr($contentBlock, 'name');
+                
                 $this->toolCallsMap[$index] = [
-                    'id' => $this->getAttr($contentBlock, 'id'),
-                    'name' => $this->getAttr($contentBlock, 'name'),
+                    'id' => $toolId,
+                    'name' => $toolName,
                     'input' => ''
                 ];
-                error_log('[StreamChunkConverter] content_block_start: initialized tool call at index=' . $index . ', id=' . $this->getAttr($contentBlock, 'id') . ', name=' . $this->getAttr($contentBlock, 'name'));
+                error_log('[StreamChunkConverter] content_block_start: initialized tool call at index=' . $index . ', id=' . $toolId . ', name=' . $toolName);
+                error_log('[StreamChunkConverter] content_block_start: toolCallsMap now has keys=' . json_encode(array_keys($this->toolCallsMap)));
+            } else {
+                error_log('[StreamChunkConverter] content_block_start: NOT a tool_use block, skipping');
             }
         } elseif ($eventType === 'content_block_delta') {
             $delta = $this->getAttr($event, 'delta');
