@@ -1,48 +1,49 @@
-import { writable, derived, get } from 'svelte/store'
 import { ChatClient } from '@tanstack/ai-client'
 import type { AnyClientTool, ModelMessage } from '@tanstack/ai'
-import type { UIMessage, UseChatOptions, UseChatReturn } from './types'
+import type { UIMessage, CreateChatOptions, CreateChatReturn } from './types'
 
 /**
- * Svelte hook for chat functionality using stores.
+ * Creates a reactive chat instance for Svelte 5.
  *
- * This hook wraps the ChatClient from @tanstack/ai-client and exposes
- * reactive state using Svelte stores.
+ * This function wraps the ChatClient from @tanstack/ai-client and exposes
+ * reactive state using Svelte 5 runes. The returned object has reactive
+ * getters that automatically update when state changes.
  *
  * @example
  * ```svelte
  * <script>
- *   import { useChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
+ *   import { createChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
  *
- *   const chat = useChat({
+ *   const chat = createChat({
  *     connection: fetchServerSentEvents('/api/chat'),
  *   })
  * </script>
  *
  * <div>
- *   {#each $chat.messages as message}
- *     <div>{message.role}: {message.content}</div>
+ *   {#each chat.messages as message}
+ *     <div>{message.role}: {message.parts[0].content}</div>
  *   {/each}
+ *
+ *   {#if chat.isLoading}
+ *     <button onclick={chat.stop}>Stop</button>
+ *   {/if}
+ *
+ *   <button onclick={() => chat.sendMessage('Hello!')}>Send</button>
  * </div>
  * ```
  */
-export function useChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
-  options: UseChatOptions<TTools>,
-): UseChatReturn<TTools> {
+export function createChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
+  options: CreateChatOptions<TTools>,
+): CreateChatReturn<TTools> {
   // Generate a unique ID for this chat instance
   const clientId =
     options.id ||
     `chat-${Date.now()}-${Math.random().toString(36).substring(7)}`
 
-  // Create writable stores for reactive state
-  const messagesStore = writable<Array<UIMessage<TTools>>>(
-    options.initialMessages || [],
-  )
-  const isLoadingStore = writable<boolean>(false)
-  const errorStore = writable<Error | undefined>(undefined)
-
-  // Track if this is the first mount
-  let isFirstMount = true
+  // Create reactive state using Svelte 5 runes
+  let messages = $state<Array<UIMessage<TTools>>>(options.initialMessages || [])
+  let isLoading = $state(false)
+  let error = $state<Error | undefined>(undefined)
 
   // Create ChatClient instance
   const client = new ChatClient({
@@ -57,29 +58,15 @@ export function useChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
     tools: options.tools,
     streamProcessor: options.streamProcessor,
     onMessagesChange: (newMessages: Array<UIMessage<TTools>>) => {
-      messagesStore.set(newMessages)
+      messages = newMessages
     },
     onLoadingChange: (newIsLoading: boolean) => {
-      isLoadingStore.set(newIsLoading)
+      isLoading = newIsLoading
     },
     onErrorChange: (newError: Error | undefined) => {
-      errorStore.set(newError)
+      error = newError
     },
   })
-
-  // Sync initial messages on mount only
-  if (
-    isFirstMount &&
-    options.initialMessages &&
-    options.initialMessages.length > 0
-  ) {
-    const currentMessages = get(messagesStore)
-    // Only set if current messages are empty (initial state)
-    if (currentMessages.length === 0) {
-      client.setMessagesManually(options.initialMessages)
-    }
-    isFirstMount = false
-  }
 
   // Define methods
   const sendMessage = async (content: string) => {
@@ -102,7 +89,7 @@ export function useChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
     client.clear()
   }
 
-  const setMessagesManually = (newMessages: Array<UIMessage<TTools>>) => {
+  const setMessages = (newMessages: Array<UIMessage<TTools>>) => {
     client.setMessagesManually(newMessages)
   }
 
@@ -123,19 +110,25 @@ export function useChat<TTools extends ReadonlyArray<AnyClientTool> = any>(
     await client.addToolApprovalResponse(response)
   }
 
-  // Return the chat interface with stores
+  // Return the chat interface with reactive getters
+  // Using getters allows Svelte to track reactivity without needing $ prefix
   return {
-    messages: messagesStore,
-    isLoading: isLoadingStore,
-    error: errorStore,
+    get messages() {
+      return messages
+    },
+    get isLoading() {
+      return isLoading
+    },
+    get error() {
+      return error
+    },
     sendMessage,
     append,
     reload,
     stop,
-    setMessages: setMessagesManually,
+    setMessages,
     clear,
     addToolResult,
     addToolApprovalResponse,
   }
 }
-

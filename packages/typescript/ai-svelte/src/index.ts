@@ -1,7 +1,7 @@
-export { useChat } from './use-chat'
+export { createChat } from './create-chat.svelte'
 export type {
-  UseChatOptions,
-  UseChatReturn,
+  CreateChatOptions,
+  CreateChatReturn,
   UIMessage,
   ChatRequestBody,
 } from './types'
@@ -12,8 +12,8 @@ export {
   fetchHttpStream,
   stream,
   createChatClientOptions,
+  clientTools,
   type ConnectionAdapter,
   type FetchConnectionOptions,
   type InferChatMessages,
 } from '@tanstack/ai-client'
-

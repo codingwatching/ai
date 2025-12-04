@@ -1,8 +1,17 @@
 import { defineConfig, mergeConfig } from 'vitest/config'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { tanstackViteConfig } from '@tanstack/vite-config'
 import packageJson from './package.json'
 
 const config = defineConfig({
+  plugins: [
+    svelte({
+      compilerOptions: {
+        // Enable runes mode
+        runes: true,
+      },
+    }),
+  ],
   test: {
     name: packageJson.name,
     dir: './',
@@ -21,7 +30,7 @@ const config = defineConfig({
         '**/*.config.ts',
         '**/types.ts',
       ],
-      include: ['src/**/*.ts'],
+      include: ['src/**/*.ts', 'src/**/*.svelte.ts'],
     },
   },
 })
@@ -34,4 +43,3 @@ export default mergeConfig(
     cjs: false,
   }),
 )
-

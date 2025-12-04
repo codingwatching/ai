@@ -1,35 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, waitFor } from '@testing-library/svelte'
-import { useChat } from '../src/use-chat'
-import { createMockConnection, createTextChunk } from './test-utils'
+import { createChat } from '../src/create-chat.svelte'
+import { createMockConnection } from './test-utils'
 
-// Test component wrapper for Svelte 5
-function createTestComponent(chatOptions: any) {
-  let chatInstance: any
-
-  const TestComponent = `
-    <script>
-      import { useChat } from '../src/use-chat'
-      
-      const chat = useChat(${JSON.stringify(chatOptions)})
-      
-      // Expose chat for testing
-      if (typeof window !== 'undefined') {
-        window.testChat = chat
-      }
-    </script>
-    
-    <div>
-      <div data-testid="message-count">{chat.messages.length}</div>
-      <div data-testid="is-loading">{chat.isLoading}</div>
-      <div data-testid="error">{chat.error?.message || ''}</div>
-    </div>
-  `
-
-  return TestComponent
-}
-
-describe('useChat', () => {
+describe('createChat', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -37,7 +10,7 @@ describe('useChat', () => {
   it('should initialize with empty messages', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -57,7 +30,7 @@ describe('useChat', () => {
       },
     ]
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
       initialMessages,
     })
@@ -69,7 +42,7 @@ describe('useChat', () => {
   it('should have sendMessage method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -79,7 +52,7 @@ describe('useChat', () => {
   it('should have stop method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -90,7 +63,7 @@ describe('useChat', () => {
   it('should have clear method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -101,7 +74,7 @@ describe('useChat', () => {
   it('should have reload method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -111,7 +84,7 @@ describe('useChat', () => {
   it('should have setMessages method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -121,7 +94,7 @@ describe('useChat', () => {
   it('should have addToolResult method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -131,7 +104,7 @@ describe('useChat', () => {
   it('should have addToolApprovalResponse method', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -141,7 +114,7 @@ describe('useChat', () => {
   it('should expose reactive messages property', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -153,7 +126,7 @@ describe('useChat', () => {
   it('should expose reactive isLoading property', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -165,7 +138,7 @@ describe('useChat', () => {
   it('should expose reactive error property', () => {
     const mockConnection = createMockConnection([])
 
-    const chat = useChat({
+    const chat = createChat({
       connection: mockConnection,
     })
 
@@ -174,4 +147,3 @@ describe('useChat', () => {
     expect(chat.error).toBeUndefined()
   })
 })
-

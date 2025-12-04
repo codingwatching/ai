@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { useChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
-  import { clientTools } from '@tanstack/ai-client'
+  import {
+    createChat,
+    fetchServerSentEvents,
+    clientTools,
+  } from '@tanstack/ai-svelte'
   import Messages from '$lib/components/Messages.svelte'
   import ChatInput from '$lib/components/ChatInput.svelte'
   import {
@@ -59,16 +62,8 @@
     recommendGuitarToolClient,
   )
 
-  // Note: body is captured at initialization time
-  // To change models, the component would need to remount or we'd need a different pattern
-  const {
-    messages,
-    isLoading,
-    error,
-    sendMessage,
-    stop,
-    addToolApprovalResponse,
-  } = useChat({
+  // Create chat instance - reactive getters mean no $ prefix needed!
+  const chat = createChat({
     connection: fetchServerSentEvents('/api/chat'),
     tools,
     get body() {
@@ -87,7 +82,7 @@
   }
 
   function handleSend(message: string) {
-    sendMessage(message)
+    chat.sendMessage(message)
   }
 </script>
 
@@ -113,7 +108,7 @@
                 opt.model === selectedModel.model,
             )}
             onchange={handleModelChange}
-            disabled={$isLoading}
+            disabled={chat.isLoading}
             class="w-full rounded-lg border border-orange-500/20 bg-gray-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 disabled:opacity-50"
           >
             {#each MODEL_OPTIONS as option, index}
@@ -126,13 +121,16 @@
       </div>
     </div>
 
-    <Messages messages={$messages} {addToolApprovalResponse} />
+    <Messages
+      messages={chat.messages}
+      addToolApprovalResponse={chat.addToolApprovalResponse}
+    />
 
     <ChatInput
       bind:value={input}
-      isLoading={$isLoading}
+      isLoading={chat.isLoading}
       onSend={handleSend}
-      onStop={stop}
+      onStop={chat.stop}
     />
   </div>
 </div>

@@ -1,6 +1,6 @@
 # @tanstack/ai-svelte
 
-Svelte hooks for TanStack AI.
+Svelte bindings for TanStack AI.
 
 ## Installation
 
@@ -16,41 +16,40 @@ yarn add @tanstack/ai-svelte
 
 ```svelte
 <script>
-  import { useChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
+  import { createChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
 
-  const chat = useChat({
+  const chat = createChat({
     connection: fetchServerSentEvents('/api/chat'),
   })
 </script>
 
 <div>
   {#each chat.messages as message}
-    <div>{message.role}: {message.content}</div>
+    <div>{message.role}: {message.parts[0].content}</div>
   {/each}
 
   {#if chat.isLoading}
     <button onclick={chat.stop}>Stop</button>
   {/if}
 
-  <input
-    type="text"
-    onsubmit={(e) => {
-      e.preventDefault()
-      chat.sendMessage(e.target.value)
-    }}
-  />
+  <button onclick={() => chat.sendMessage('Hello!')}> Send </button>
 </div>
 ```
 
 ## API
 
-### `useChat(options)`
+### `createChat(options)`
 
-Returns a chat object with the following properties and methods:
+Creates a reactive chat instance. Returns an object with reactive getters and methods:
 
-- `messages` - Reactive array of messages
-- `isLoading` - Reactive boolean indicating if a response is being generated
-- `error` - Reactive error object
+**Reactive Properties (no `$` prefix needed):**
+
+- `messages` - Array of messages in the conversation
+- `isLoading` - Boolean indicating if a response is being generated
+- `error` - Current error, if any
+
+**Methods:**
+
 - `sendMessage(content)` - Send a message
 - `append(message)` - Append a message
 - `reload()` - Reload the last assistant message
@@ -60,7 +59,25 @@ Returns a chat object with the following properties and methods:
 - `addToolResult(result)` - Add a tool result
 - `addToolApprovalResponse(response)` - Respond to a tool approval request
 
+## Svelte 5 Runes
+
+This library uses Svelte 5 runes (`$state`) internally, providing a clean API where you don't need to use the `$` prefix to access reactive state:
+
+```svelte
+<script>
+  const chat = createChat({ ... })
+  
+  // No $ needed - these are reactive getters!
+  console.log(chat.messages)
+  console.log(chat.isLoading)
+</script>
+
+<!-- Reactivity works automatically in templates -->
+{#each chat.messages as message}
+  ...
+{/each}
+```
+
 ## License
 
 MIT
-

@@ -1,4 +1,3 @@
-import type { Readable } from 'svelte/store'
 import type { AnyClientTool, ModelMessage } from '@tanstack/ai'
 import type {
   ChatClientOptions,
@@ -10,7 +9,7 @@ import type {
 export type { UIMessage, ChatRequestBody }
 
 /**
- * Options for the useChat hook.
+ * Options for the createChat function.
  *
  * This extends ChatClientOptions but omits the state change callbacks that are
  * managed internally by Svelte state:
@@ -24,19 +23,20 @@ export type { UIMessage, ChatRequestBody }
  * Note: Connection and body changes will recreate the ChatClient instance.
  * To update these options, remount the component or use a key prop.
  */
-export type UseChatOptions<TTools extends ReadonlyArray<AnyClientTool> = any> =
-  Omit<
-    ChatClientOptions<TTools>,
-    'onMessagesChange' | 'onLoadingChange' | 'onErrorChange'
-  >
+export type CreateChatOptions<
+  TTools extends ReadonlyArray<AnyClientTool> = any,
+> = Omit<
+  ChatClientOptions<TTools>,
+  'onMessagesChange' | 'onLoadingChange' | 'onErrorChange'
+>
 
-export interface UseChatReturn<
+export interface CreateChatReturn<
   TTools extends ReadonlyArray<AnyClientTool> = any,
 > {
   /**
-   * Current messages in the conversation (Svelte store)
+   * Current messages in the conversation (reactive getter)
    */
-  readonly messages: Readable<Array<UIMessage<TTools>>>
+  readonly messages: Array<UIMessage<TTools>>
 
   /**
    * Send a message and get a response
@@ -78,14 +78,14 @@ export interface UseChatReturn<
   stop: () => void
 
   /**
-   * Whether a response is currently being generated (Svelte store)
+   * Whether a response is currently being generated (reactive getter)
    */
-  readonly isLoading: Readable<boolean>
+  readonly isLoading: boolean
 
   /**
-   * Current error, if any (Svelte store)
+   * Current error, if any (reactive getter)
    */
-  readonly error: Readable<Error | undefined>
+  readonly error: Error | undefined
 
   /**
    * Set messages manually
@@ -100,4 +100,3 @@ export interface UseChatReturn<
 
 // Note: createChatClientOptions and InferChatMessages are now in @tanstack/ai-client
 // and re-exported from there for convenience
-
