@@ -59,11 +59,11 @@ class GuitarSeeder extends Seeder
         // Define guitar products
         $guitars = [
             [
-                'name' => 'Video Game Guitar',
-                'image' => 'example-guitar-video-games.jpg',
-                'description' => "The Video Game Guitar is a unique acoustic guitar that features a design inspired by video games. It has a sleek, high-gloss finish and a comfortable playability. The guitar's ergonomic body and fast neck profile ensure comfortable playability for hours on end.",
-                'shortDescription' => 'A unique electric guitar with a video game design, high-gloss finish, and comfortable playability.',
-                'price' => 69900, // $699.00 in cents
+                'name' => 'TanStack Ukelele',
+                'image' => 'example-ukulele-tanstack.jpg',
+                'description' => "Introducing the TanStack Signature Ukulele—a beautifully handcrafted concert ukulele that combines exceptional sound quality with distinctive style. Featuring a warm, resonant koa-wood body with natural grain patterns, this instrument delivers the rich, mellow tones Hawaii is famous for. The exclusive TanStack palm tree inlay on the soundhole adds a unique touch of island flair, while the matching branded headstock makes this a true collector's piece for developers and musicians alike. Whether you're a beginner looking for a quality starter instrument or an experienced player wanting something special, the TanStack Ukulele brings together craftsmanship, character, and that unmistakable tropical spirit.",
+                'shortDescription' => 'Premium koa-wood ukulele featuring exclusive TanStack branding, perfect for beach vibes and island-inspired melodies.',
+                'price' => 29900, // $299.00 in cents
             ],
             [
                 'name' => 'Superhero Guitar',
