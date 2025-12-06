@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxFactory": "solid",
+    "jsxImportSource": "solid-js",
     "moduleResolution": "bundler",
     "strictNullChecks": true
   },

@@ -213,10 +213,7 @@ export const AIProvider: ParentComponent = (props) => {
 
     batch(() => {
       // Flush conversation-level chunks
-      for (const [
-        conversationId,
-        { chunks, newChunkCount },
-      ] of pendingConversationChunks) {
+      for (const [conversationId, { chunks }] of pendingConversationChunks) {
         const conv = state.conversations[conversationId]
         if (conv) {
           setState(
@@ -1412,7 +1409,6 @@ export const AIProvider: ParentComponent = (props) => {
         (e) => {
           const streamId = e.payload.streamId
           const model = e.payload.model
-          const provider = e.payload.provider
           const clientId = e.payload.clientId
 
           if (clientId && state.conversations[clientId]) {

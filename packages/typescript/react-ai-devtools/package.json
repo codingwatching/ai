@@ -22,25 +22,23 @@
     "test:lib:dev": "pnpm test:lib --watch",
     "test:types": "tsc",
     "test:build": "publint --strict",
-    "build": "vite build"
+    "build": "tsdown"
   },
   "type": "module",
-  "types": "./dist/esm/index.d.ts",
-  "module": "./dist/esm/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
-      }
-    },
-    "./production": {
-      "import": {
-        "types": "./dist/esm/production.d.ts",
-        "default": "./dist/esm/production.js"
-      }
-    },
+    ".": "./src/index.ts",
+    "./production": "./src/production.ts",
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./production": "./dist/production.js",
+      "./package.json": "./package.json"
+    }
   },
   "sideEffects": false,
   "files": [

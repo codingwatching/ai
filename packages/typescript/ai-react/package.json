@@ -10,12 +10,17 @@
     "directory": "packages/typescript/ai-react"
   },
   "type": "module",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
     }
   },
   "files": [
@@ -29,8 +34,7 @@
     "test:lib": "vitest run",
     "test:lib:dev": "pnpm test:lib --watch",
     "test:types": "tsc",
-    "test:build": "publint --strict",
-    "build": "vite build"
+    "build": "tsdown"
   },
   "keywords": [
     "ai",

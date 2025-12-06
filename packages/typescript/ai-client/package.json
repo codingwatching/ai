@@ -18,12 +18,17 @@
     "streaming"
   ],
   "type": "module",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
     }
   },
   "files": [
@@ -31,16 +36,15 @@
     "src"
   ],
   "scripts": {
-    "build": "vite build",
     "clean": "premove ./build ./dist",
     "lint:fix": "eslint ./src --fix",
-    "test:build": "publint --strict",
     "test:coverage": "vitest run --coverage",
     "test:coverage:watch": "vitest --coverage --watch",
     "test:eslint": "eslint ./src",
     "test:lib": "vitest",
     "test:lib:dev": "pnpm test:lib --watch",
-    "test:types": "tsc"
+    "test:types": "tsc",
+    "build": "tsdown"
   },
   "dependencies": {
     "@tanstack/ai": "workspace:*"

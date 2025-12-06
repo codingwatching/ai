@@ -9,17 +9,28 @@
     "url": "git+https://github.com/TanStack/ai.git",
     "directory": "packages/typescript/ai"
   },
+  "keywords": [
+    "ai",
+    "tanstack",
+    "sdk",
+    "llm",
+    "chat",
+    "embeddings"
+  ],
   "type": "module",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js"
-    },
-    "./event-client": {
-      "types": "./dist/esm/event-client.d.ts",
-      "import": "./dist/esm/event-client.js"
+    ".": "./src/index.ts",
+    "./event-client": "./src/event-client.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./event-client": "./dist/event-client.js",
+      "./package.json": "./package.json"
     }
   },
   "sideEffects": false,
@@ -31,25 +42,16 @@
     "src"
   ],
   "scripts": {
-    "build": "vite build",
     "clean": "premove ./build ./dist",
     "lint:fix": "eslint ./src --fix",
-    "test:build": "publint --strict",
     "test:coverage": "vitest run --coverage",
     "test:coverage:watch": "vitest --coverage --watch",
     "test:eslint": "eslint ./src",
     "test:lib": "vitest",
     "test:lib:dev": "pnpm test:lib --watch",
-    "test:types": "tsc"
+    "test:types": "tsc",
+    "build": "tsdown"
   },
-  "keywords": [
-    "ai",
-    "tanstack",
-    "sdk",
-    "llm",
-    "chat",
-    "embeddings"
-  ],
   "dependencies": {
     "@tanstack/devtools-event-client": "^0.3.5",
     "partial-json": "^0.1.7"

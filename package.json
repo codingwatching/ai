@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/TanStack/ai.git"
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.24.0",
   "type": "module",
   "pnpm": {
     "overrides": {
@@ -48,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
     "@changesets/cli": "^2.29.8",
     "@faker-js/faker": "^10.1.0",
     "@svitejs/changesets-changelog-github-compact": "^1.2.0",
@@ -67,6 +68,7 @@
     "publint": "^0.3.15",
     "sherif": "^1.9.0",
     "tinyglobby": "^0.2.15",
+    "tsdown": "^0.17.0",
     "typescript": "5.9.3",
     "vite": "^7.2.4",
     "vitest": "^4.0.14"
