@@ -12,14 +12,8 @@
     "directory": "packages/typescript/ai"
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": "./dist/index.js",
     "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "exports": {
-      ".": "./dist/index.js",
-      "./package.json": "./package.json"
-    }
   },
   "scripts": {
     "clean": "premove ./build ./dist",

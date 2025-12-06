@@ -22,16 +22,9 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./event-client": "./src/event-client.ts",
+    ".": "./dist/index.js",
+    "./event-client": "./dist/event-client.js",
     "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "exports": {
-      ".": "./dist/index.js",
-      "./event-client": "./dist/event-client.js",
-      "./package.json": "./package.json"
-    }
   },
   "sideEffects": false,
   "engines": {

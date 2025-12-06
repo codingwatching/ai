@@ -29,16 +29,9 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./production": "./src/production.ts",
+    ".": "./dist/index.js",
+    "./production": "./dist/production.js",
     "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "exports": {
-      ".": "./dist/index.js",
-      "./production": "./dist/production.js",
-      "./package.json": "./package.json"
-    }
   },
   "sideEffects": false,
   "files": [

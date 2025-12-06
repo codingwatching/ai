@@ -11,9 +11,7 @@ export default defineConfig({
   clean: true,
   minify: false,
   fixedExtension: false,
-  exports: {
-    devExports: true,
-  },
+  exports: true,
   publint: {
     strict: true,
   },
