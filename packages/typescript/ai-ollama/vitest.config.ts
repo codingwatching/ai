@@ -1,8 +1,7 @@
-import { defineConfig, mergeConfig } from 'vitest/config'
-import { tanstackViteConfig } from '@tanstack/vite-config'
-import packageJson from './package.json'
+import { defineConfig } from 'vitest/config'
+import packageJson from './package.json' with { type: 'json' }
 
-const config = defineConfig({
+export default defineConfig({
   test: {
     name: packageJson.name,
     dir: './',
@@ -25,12 +24,3 @@ const config = defineConfig({
     },
   },
 })
-
-export default mergeConfig(
-  config,
-  tanstackViteConfig({
-    entry: ['./src/index.ts'],
-    srcDir: './src',
-    cjs: false,
-  }),
-)

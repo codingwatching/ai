@@ -1,14 +1,15 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig, mergeConfig } from 'vitest/config'
+import { tanstackViteConfig } from '@tanstack/vite-config'
+import packageJson from './package.json'
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-
-export default defineConfig({
+const config = defineConfig({
   test: {
+    name: packageJson.name,
+    dir: './',
+    watch: false,
     globals: true,
-    environment: 'jsdom',
-    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -17,19 +18,19 @@ export default defineConfig({
         'dist/',
         'tests/',
         '**/*.test.ts',
-        '**/*.test.tsx',
         '**/*.config.ts',
         '**/types.ts',
       ],
       include: ['src/**/*.ts'],
     },
   },
-  resolve: {
-    alias: {
-      '@tanstack/ai/event-client': resolve(
-        __dirname,
-        '../ai/src/event-client.ts',
-      ),
-    },
-  },
 })
+
+export default mergeConfig(
+  config,
+  tanstackViteConfig({
+    entry: ['./src/index.ts'],
+    srcDir: './src',
+    cjs: false,
+  }),
+)

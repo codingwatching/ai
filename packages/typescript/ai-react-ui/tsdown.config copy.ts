@@ -1,9 +1,7 @@
 import { defineConfig } from 'tsdown'
-import solid from 'vite-plugin-solid'
 
 export default defineConfig({
-  plugins: [solid()],
-  entry: ['./src/index.ts'],
+  entry: ['./src/index.ts', './src/event-client.ts'],
   format: ['esm'],
   unbundle: true,
   dts: true,
