@@ -1,6 +1,7 @@
 ---
 title: Quick Start
 id: quick-start
+order: 2
 ---
 
 Get started with TanStack AI in minutes. This guide will walk you through creating a simple chat application using the React integration and OpenAI adapter.
@@ -23,7 +24,7 @@ First, create an API route that handles chat requests. Here's a simplified examp
 // app/api/chat/route.ts (Next.js)
 // or src/routes/api/chat.ts (TanStack Start)
 import { chat, toStreamResponse } from "@tanstack/ai";
-import { openai } from "@tanstack/ai-openai";
+import { openaiText } from "@tanstack/ai-openai";
 
 export async function POST(request: Request) {
   // Check for API key
@@ -44,9 +45,8 @@ export async function POST(request: Request) {
   try {
     // Create a streaming chat response
     const stream = chat({
-      adapter: openai(),
+      adapter: openaiText("gpt-4o"),
       messages,
-      model: "gpt-4o",
       conversationId
     });
 
@@ -176,10 +176,12 @@ You now have a working chat application. The `useChat` hook handles:
 
 ## Using Tools
 
-Since TanStack AI is framework-agnostic, you can define and use tools in any environment. Here’s a quick example of defining a tool and using it in a chat:
+Since TanStack AI is framework-agnostic, you can define and use tools in any environment. Here's a quick example of defining a tool and using it in a chat:
 
 ```typescript
+import { chat } from '@tanstack/ai'
 import { toolDefinition } from '@tanstack/ai'
+import { openaiText } from '@tanstack/ai-openai'
 
 const getProductsDef = toolDefinition({
   name: 'getProducts',
@@ -190,7 +192,11 @@ const getProducts = getProductsDef.server(async ({ query }) => {
   return await db.products.search(query)
 })
 
-chat({ tools: [getProducts] })
+chat({
+  adapter: openaiText('gpt-4o'),
+  messages: [{ role: 'user', content: 'Find products' }],
+  tools: [getProducts]
+})
 ```
 
 ## Next Steps
