@@ -27,6 +27,7 @@ import {
 import { maxIterations as maxIterationsStrategy } from './agent-loop-strategies'
 import { convertMessagesToModelMessages, generateMessageId } from './messages'
 import { MiddlewareRunner } from './middleware/compose'
+import { provideSandboxRuntime } from './middleware/sandbox-runtime'
 import { CapabilityRegistry } from './middleware/capabilities'
 import { validateCapabilities } from './middleware/validate'
 import { MCPManager } from './mcp/manager'
@@ -67,6 +68,7 @@ import type {
   ChatMiddleware,
   ChatMiddlewareConfig,
   ChatMiddlewareContext,
+  SandboxFileEvent,
   StructuredOutputMiddlewareConfig,
 } from './middleware/types'
 import type { CheckCoverage } from './middleware/builder'
@@ -542,6 +544,7 @@ class TextEngine<
   // Middleware support
   private readonly middlewareRunner: MiddlewareRunner<TContext>
   private readonly middlewareCtx: ChatMiddlewareContext<TContext>
+  private readonly sandboxFileQueue: Array<StreamChunk> = []
   private readonly deferredPromises: Array<Promise<unknown>> = []
   private abortReason?: string
   private readonly middlewareAbortController?: AbortController
@@ -701,6 +704,21 @@ class TextEngine<
         capability[0](this.middlewareCtx, { optional: true }),
       provide: (capability, value) => capability[1](this.middlewareCtx, value),
     }
+
+    // Provide the internal SandboxRuntime capability so harness adapters and
+    // sandbox middleware can emit file events. The sink logs, fans the event
+    // out through the middleware `onFile*` hooks (fire-and-forget), and queues
+    // a `sandbox.file` custom chunk to be drained into the public stream.
+    provideSandboxRuntime(this.middlewareCtx, {
+      logger: this.logger,
+      emit: (event: SandboxFileEvent) => {
+        this.logger.sandbox(`file ${event.type} ${event.path}`, { event })
+        void this.middlewareRunner.runSandboxFile(this.middlewareCtx, event)
+        this.sandboxFileQueue.push(
+          this.createCustomEventChunk('sandbox.file', { ...event }),
+        )
+      },
+    })
   }
 
   /** Get the accumulated content after the chat loop completes */
@@ -1021,6 +1039,10 @@ class TextEngine<
       threadId: this.threadId,
       runId: this.runIdOverride,
       parentRunId: this.parentRunIdOverride,
+      // Expose provided capabilities (e.g. sandbox) to harness adapters.
+      capabilities: this.middlewareCtx,
+      // Client approval decisions, for harness interactive-approval resolution.
+      approvals: this.initialApprovals,
       ...(combinedSchema ? { outputSchema: combinedSchema } : {}),
     })) {
       if (this.isCancelled()) {
@@ -1105,10 +1127,16 @@ class TextEngine<
         await this.middlewareRunner.runOnUsage(this.middlewareCtx, chunk.usage)
       }
 
+      // Drain any sandbox.file events emitted while processing this chunk.
+      yield* this.drainSandboxFileQueue()
+
       if (this.earlyTermination) {
         break
       }
     }
+
+    // Drain any remaining sandbox.file events emitted after the stream ended.
+    yield* this.drainSandboxFileQueue()
   }
 
   private handleStreamChunk(chunk: StreamChunk): void {
@@ -2499,6 +2527,17 @@ class TextEngine<
     for (const outputChunk of outputChunks) {
       yield outputChunk
       this.middlewareCtx.chunkIndex++
+    }
+  }
+
+  /**
+   * Drain queued `sandbox.file` chunks (emitted via the SandboxRuntime sink)
+   * through the middleware pipeline and into the public stream.
+   */
+  private async *drainSandboxFileQueue(): AsyncGenerator<StreamChunk> {
+    while (this.sandboxFileQueue.length > 0) {
+      const chunk = this.sandboxFileQueue.shift()
+      if (chunk) yield* this.pipeThroughMiddleware(chunk)
     }
   }
 

@@ -120,6 +120,8 @@ export type {
   FinishInfo,
   AbortInfo,
   ErrorInfo,
+  SandboxFileEvent,
+  ChatSandboxHooks,
 } from './activities/chat/middleware/index'
 
 // Base, activity-agnostic middleware. The observe-only superset that media
@@ -149,6 +151,8 @@ export type {
   CapabilityContext,
   CapabilityGetter,
   CapabilityProvider,
+  DefinedChatMiddleware,
+  AnyChatMiddleware,
 } from './activities/chat/middleware/index'
 
 // All types

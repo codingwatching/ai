@@ -56,3 +56,8 @@ allowBuilds:
   workerd: false
   '@google/genai': false
   lmdb: true
+  # dockerode (@tanstack/ai-sandbox-docker) pulls these only for SSH-based
+  # Docker connections; the local-socket path the provider uses has a working
+  # JS fallback, so their native builds are not required.
+  cpu-features: false
+  ssh2: false
