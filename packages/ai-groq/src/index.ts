@@ -14,6 +14,15 @@ export {
   type GroqTextProviderOptions,
 } from './adapters/text'
 
+// Transcription adapter
+export {
+  GroqTranscriptionAdapter,
+  createGroqTranscription,
+  groqTranscription,
+  type GroqTranscriptionConfig,
+} from './adapters/transcription'
+export type { GroqTranscriptionProviderOptions } from './audio/transcription-provider-options'
+
 // TTS adapter - for text-to-speech
 export {
   GroqTTSAdapter,
@@ -39,9 +48,14 @@ export type {
   ResolveProviderOptions,
   ResolveInputModalities,
   GroqChatModels,
+  GroqTranscriptionModel,
   GroqTTSModel,
 } from './model-meta'
-export { GROQ_CHAT_MODELS, GROQ_TTS_MODELS } from './model-meta'
+export {
+  GROQ_CHAT_MODELS,
+  GROQ_TRANSCRIPTION_MODELS,
+  GROQ_TTS_MODELS,
+} from './model-meta'
 export type {
   GroqTextMetadata,
   GroqImageMetadata,
