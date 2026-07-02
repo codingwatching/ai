@@ -67,6 +67,56 @@ describe('Anthropic per-model tool gating', () => {
     ])
   })
 
+  it('claude-sonnet-5 accepts the full tool superset', () => {
+    const adapter = anthropicText('claude-sonnet-5')
+    typedTools(adapter, [
+      userTool,
+      webSearchTool({ name: 'web_search', type: 'web_search_20250305' }),
+      webFetchTool(),
+      codeExecutionTool({
+        name: 'code_execution',
+        type: 'code_execution_20250825',
+      }),
+      computerUseTool({
+        type: 'computer_20250124',
+        name: 'computer',
+        display_width_px: 1024,
+        display_height_px: 768,
+      }),
+      bashTool({ name: 'bash', type: 'bash_20250124' }),
+      textEditorTool({
+        type: 'text_editor_20250124',
+        name: 'str_replace_editor',
+      }),
+      memoryTool(),
+    ])
+  })
+
+  it('claude-fable-5 accepts the full tool superset', () => {
+    const adapter = anthropicText('claude-fable-5')
+    typedTools(adapter, [
+      userTool,
+      webSearchTool({ name: 'web_search', type: 'web_search_20250305' }),
+      webFetchTool(),
+      codeExecutionTool({
+        name: 'code_execution',
+        type: 'code_execution_20250825',
+      }),
+      computerUseTool({
+        type: 'computer_20250124',
+        name: 'computer',
+        display_width_px: 1024,
+        display_height_px: 768,
+      }),
+      bashTool({ name: 'bash', type: 'bash_20250124' }),
+      textEditorTool({
+        type: 'text_editor_20250124',
+        name: 'str_replace_editor',
+      }),
+      memoryTool(),
+    ])
+  })
+
   it('claude-3-haiku rejects every tool except web_search', () => {
     const adapter = anthropicText('claude-3-haiku')
     typedTools(adapter, [

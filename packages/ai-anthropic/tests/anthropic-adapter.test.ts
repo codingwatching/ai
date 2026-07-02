@@ -533,6 +533,20 @@ describe('Anthropic adapter option mapping', () => {
     expect(adapter.supportsCombinedToolsAndSchema()).toBe(false)
   })
 
+  it('native combined mode (#605): claude-sonnet-5 and claude-fable-5 use the single-request path', () => {
+    const sonnet5 = new AnthropicTextAdapter(
+      { apiKey: 'test-key' },
+      'claude-sonnet-5',
+    )
+    expect(sonnet5.supportsCombinedToolsAndSchema()).toBe(true)
+
+    const fable5 = new AnthropicTextAdapter(
+      { apiKey: 'test-key' },
+      'claude-fable-5',
+    )
+    expect(fable5.supportsCombinedToolsAndSchema()).toBe(true)
+  })
+
   it('merges consecutive user messages when tool results precede a follow-up user message', async () => {
     // This is the core multi-turn bug: after a tool call + result, the next user message
     // creates consecutive role:'user' messages (tool_result as user + new user message).

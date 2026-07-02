@@ -2,18 +2,19 @@
 title: Anthropic
 id: anthropic-adapter
 order: 2
-description: "Use Anthropic Claude models with TanStack AI — Claude Sonnet 4.5, Claude Opus, and more via the @tanstack/ai-anthropic adapter."
+description: "Use Anthropic Claude models with TanStack AI — Claude Fable 5, Claude Sonnet 5, Claude Opus, and more via the @tanstack/ai-anthropic adapter."
 keywords:
   - tanstack ai
   - anthropic
   - claude
-  - claude sonnet 4.5
+  - claude fable 5
+  - claude sonnet 5
   - claude opus
   - adapter
   - llm
 ---
 
-The Anthropic adapter provides access to Claude models, including Claude Sonnet 4.5, Claude Opus 4.5, and more.
+The Anthropic adapter provides access to Claude models, including Claude Fable 5, Claude Sonnet 5, Claude Opus 4.8, and more.
 
 ## Installation
 
@@ -151,6 +152,41 @@ modelOptions: {
 
 **Note:** `budget_tokens` must be less than `modelOptions.max_tokens` — set `max_tokens` high enough to leave room for the visible response alongside the thinking budget, or the request is rejected.
 
+### Adaptive Thinking (Claude Sonnet 5, Claude Fable 5, Claude 4.6+)
+
+Newer Claude models use adaptive thinking — the model decides when and how
+much to think, and depth is tuned with `output_config.effort` instead of a
+token budget:
+
+```typescript
+import { chat } from "@tanstack/ai";
+import { anthropicText } from "@tanstack/ai-anthropic";
+
+const stream = chat({
+  adapter: anthropicText("claude-sonnet-5"),
+  messages: [{ role: "user", content: "Plan a database migration." }],
+  modelOptions: {
+    thinking: { type: "adaptive", display: "summarized" },
+    output_config: { effort: "xhigh" },
+    max_tokens: 64_000,
+  },
+});
+```
+
+Per-model rules (enforced by the adapter's types):
+
+- **`claude-sonnet-5`** — adaptive thinking runs by default when `thinking`
+  is omitted; `{ type: "disabled" }` opts out. The manual
+  `{ type: "enabled", budget_tokens }` shape and the sampling parameters
+  (`temperature`, `top_p`, `top_k`) are rejected by the API.
+- **`claude-fable-5`** — thinking is always on. The only accepted explicit
+  config is `{ type: "adaptive" }` (both `disabled` and `budget_tokens`
+  return a 400), and sampling parameters are rejected.
+- **`display`** defaults to `"omitted"` on these models — set
+  `"summarized"` to stream the reasoning text.
+- **`effort`** accepts `"low"` through `"max"`; `"xhigh"` is available on
+  Claude Opus 4.7+, Claude Sonnet 5, and Claude Fable 5.
+
 ### Prompt Caching
 
 Cache prompts for better performance and reduced costs:
@@ -216,7 +252,7 @@ Creates an Anthropic chat adapter.
 
 **Parameters:**
 
-- `model` - Claude model id (e.g. `"claude-sonnet-4-6"`, `"claude-opus-4.8"`)
+- `model` - Claude model id (e.g. `"claude-sonnet-5"`, `"claude-fable-5"`, `"claude-opus-4.8"`)
 - `config?.baseURL` - Custom base URL (optional)
 
 ### `anthropicSummarize(model, config?)` / `createAnthropicSummarize(model, apiKey, config?)`
