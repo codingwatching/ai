@@ -75,9 +75,15 @@ export {
   streamToText,
   toServerSentEventsStream,
   toServerSentEventsResponse,
+  resumeServerSentEventsResponse,
   toHttpStream,
   toHttpResponse,
+  resumeHttpResponse,
 } from './stream-to-response'
+
+// Delivery durability (transport layer)
+export { memoryStream } from './stream-durability'
+export type { MemoryStreamOptions, StreamDurability } from './stream-durability'
 
 // Tool call management
 export { ToolCallManager } from './activities/chat/tools/tool-calls'
